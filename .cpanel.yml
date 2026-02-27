@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/snatbur1/cmis.snatunionscheme.com
+    - /bin/cp -R application system index.php assets $DEPLOYPATH
