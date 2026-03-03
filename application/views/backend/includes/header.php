@@ -163,7 +163,7 @@
 	function get_session_changer()
 	{
 		$.ajax({
-            url: '<?php echo base_url();?>index.php?burial/get_session_changer/',
+            url: '<?php echo base_url();?>index.php?union/get_session_changer/',
             success: function(response)
             {
                 jQuery('#session_static').html(response);

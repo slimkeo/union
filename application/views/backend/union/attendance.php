@@ -42,7 +42,7 @@
 			<!--CREATION FORM STARTS-->
 			<div class="tab-pane box" id="add" style="padding: 5px">
 				<div class="box-content">
-					<?php echo form_open(base_url() . 'index.php?burial/attendance/create' , array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
+					<?php echo form_open(base_url() . 'index.php?union/attendance/create' , array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
 					<div class="form-group">
 					<label class="col-md-3 control-label">
 						<?php echo get_phrase('national_id');?>

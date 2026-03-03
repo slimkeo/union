@@ -110,16 +110,16 @@ $beneficiary_name = $beneficiary ? $beneficiary->fullname : '-';
 
                 <div style="margin-top:20px;">
                     <?php if (($claim['status'] ?? '') == 'PENDING'): ?>
-                        <a href="<?php echo base_url('index.php?burial/claims/approve/' . ($claim['id'] ?? '')); ?>" class="btn btn-success" id="approve_btn">Approve</a>
-                        <a href="<?php echo base_url('index.php?burial/claims/reject/' . ($claim['id'] ?? '')); ?>" class="btn btn-danger" id="reject_btn">Reject</a>
+                        <a href="<?php echo base_url('index.php?union/claims/approve/' . ($claim['id'] ?? '')); ?>" class="btn btn-success" id="approve_btn">Approve</a>
+                        <a href="<?php echo base_url('index.php?union/claims/reject/' . ($claim['id'] ?? '')); ?>" class="btn btn-danger" id="reject_btn">Reject</a>
                     <?php elseif (($claim['status'] ?? '') == 'APPROVED'): ?>
-                        <a href="<?php echo base_url('index.php?burial/approved_claims/pay/' . ($claim['id'] ?? '')); ?>" class="btn btn-primary" id="pay_btn">Pay</a>
+                        <a href="<?php echo base_url('index.php?union/approved_claims/pay/' . ($claim['id'] ?? '')); ?>" class="btn btn-primary" id="pay_btn">Pay</a>
                         <span class="label label-success" style="margin-left:10px;">Status: APPROVED</span>
                     <?php else: ?>
                         <span class="label label-default">Status: <?php echo htmlspecialchars($claim['status'] ?? '-'); ?></span>
                     <?php endif; ?>
-                    <a href="<?php echo base_url('index.php?burial/claims'); ?>" class="btn btn-default">Back to Claims</a>
-                    <a href="<?php echo base_url('index.php?burial/print_claims_details/'.$claim['id']); ?>"><i class="fa fa-print">Print Claim</i></a>
+                    <a href="<?php echo base_url('index.php?union/claims'); ?>" class="btn btn-default">Back to Claims</a>
+                    <a href="<?php echo base_url('index.php?union/print_claims_details/'.$claim['id']); ?>"><i class="fa fa-print">Print Claim</i></a>
                 </div>
             </div>
         </section>

@@ -62,7 +62,7 @@
 					<p><strong>CSV Format (there should be headers):</strong> Each row must have exactly 4 columns in this order:<br>
 					<code>employeeno, fullname, idnumber, amount</code><br>
 					The system will match members by ID or Employee number and create statements.</p>
-					<?php echo form_open(base_url() . 'index.php?burial/upload_spreadsheet_do', array('class' => 'form-horizontal','enctype'=>'multipart/form-data'));?>
+					<?php echo form_open(base_url() . 'index.php?union/upload_spreadsheet_do', array('class' => 'form-horizontal','enctype'=>'multipart/form-data'));?>
 					<input type="hidden" name="upload_type" value="snat" />
 					<div class="form-group">
 						<label class="col-md-3 control-label">Month</label>

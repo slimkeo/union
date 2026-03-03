@@ -54,7 +54,7 @@
 								<td>
 
 									<!-- VIEW -->
-									<a href="<?php echo base_url(); ?>index.php?burial/pay_with_momo/<?php echo $row['id'];?>" 
+									<a href="<?php echo base_url(); ?>index.php?union/pay_with_momo/<?php echo $row['id'];?>" 
 									   class="btn btn-xs btn-info" data-toggle="tooltip" 
 									   data-original-title="<?php echo get_phrase('pay_with_momo');?>" target="_blank">
 										<i class="fa fa-eye"></i>

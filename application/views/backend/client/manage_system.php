@@ -1,5 +1,5 @@
 <div class="row" data-appear-animation="fadeInRight" data-appear-animation-delay="100">
-    <?php echo form_open(base_url() . 'index.php?burial/system_settings/do_update' , 
+    <?php echo form_open(base_url() . 'index.php?union/system_settings/do_update' , 
       array('class' => 'form-horizontal form-bordered validate'));?>
         <div class="col-md-6">
             

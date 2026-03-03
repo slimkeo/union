@@ -62,7 +62,7 @@
 					</div>
 
 					<div style="margin-top: 20px;">
-						<a href="<?php echo base_url() ?>index.php?burial/upload_spreadsheet" class="btn btn-primary">
+						<a href="<?php echo base_url() ?>index.php?union/upload_spreadsheet" class="btn btn-primary">
 							<i class="fa fa-arrow-left"></i> Back to Upload
 						</a>
 					</div>
@@ -89,7 +89,7 @@ $(document).ready(function() {
 		if (!isProcessing) return;
 
 		$.ajax({
-			url: '<?php echo base_url() ?>index.php?burial/upload_spreadsheet_chunk',
+			url: '<?php echo base_url() ?>index.php?union/upload_spreadsheet_chunk',
 			type: 'POST',
 			dataType: 'json',
 			data: {
@@ -199,7 +199,7 @@ $(document).ready(function() {
 
 		// Clean up temp file on server
 		$.ajax({
-			url: '<?php echo base_url() ?>index.php?burial/upload_spreadsheet_finish',
+			url: '<?php echo base_url() ?>index.php?union/upload_spreadsheet_finish',
 			type: 'POST',
 			dataType: 'json',
 			data: {

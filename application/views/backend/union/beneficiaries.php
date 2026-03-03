@@ -146,7 +146,7 @@ foreach ($member_data as $member_row):
 								</a>
 
 								<!-- DELETION LINK -->
-								<a href="#" class="btn btn-danger btn-xs" data-placement="top" data-toggle="tooltip" data-original-title="<?php echo get_phrase('delete');?>" onClick="confirm_modal('<?php echo base_url();?>index.php?burial/beneficiaries/<?php echo $member_row['id']; ?>/delete_beneficiary/<?php echo $b['id']; ?>');">
+								<a href="#" class="btn btn-danger btn-xs" data-placement="top" data-toggle="tooltip" data-original-title="<?php echo get_phrase('delete');?>" onClick="confirm_modal('<?php echo base_url();?>index.php?union/beneficiaries/<?php echo $member_row['id']; ?>/delete_beneficiary/<?php echo $b['id']; ?>');">
 									<i class="fa fa-trash"></i>
 								</a>
 							</td>
@@ -193,7 +193,7 @@ foreach ($member_data as $member_row):
 			<!--CREATION FORM STARTS-->
 			<div class="tab-pane box" id="add" style="padding: 5px">
 				<div class="box-content">
-					<?php echo form_open(base_url() . 'index.php?burial/beneficiaries/'.$member_row['id'].'/add_beneficiary',
+					<?php echo form_open(base_url() . 'index.php?union/beneficiaries/'.$member_row['id'].'/add_beneficiary',
 			        array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
 
 							<!-- Full Name -->
@@ -326,7 +326,7 @@ foreach ($member_data as $member_row):
 			<!--BATCH CREATION FORM STARTS-->
 			<div class="tab-pane box" id="batch_add" style="padding: 15px">
 				<div class="box-content">
-					<?php echo form_open(base_url() . 'index.php?burial/beneficiaries/'.$member_row['id'].'/add_batch_beneficiaries',
+					<?php echo form_open(base_url() . 'index.php?union/beneficiaries/'.$member_row['id'].'/add_batch_beneficiaries',
 			        array('class' => 'form-horizontal form-bordered','enctype'=>'multipart/form-data'));?>
 
 						<!-- Submission Date -->

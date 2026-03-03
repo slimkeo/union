@@ -242,7 +242,7 @@ function loadMemberDetails() {
     document.getElementById('error_message').style.display = 'none';
     
     // Redirect to member details page
-    window.location.href = '<?php echo base_url(); ?>index.php?burial/member_details/' + memberId;
+    window.location.href = '<?php echo base_url(); ?>index.php?union/member_details/' + memberId;
 }
 
 // Allow Enter key to select

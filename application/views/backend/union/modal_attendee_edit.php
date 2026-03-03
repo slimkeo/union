@@ -7,7 +7,7 @@ foreach ( $edit_data as $row ):
 		<div class="col-md-12">
 			<section class="panel">
 			
-				<?php echo form_open(base_url() . 'index.php?burial/attendance/do_update/'.$row['id'] , array('class' => 'form-horizontal form-bordered','target'=>'_top', 'id' => 'form', 'enctype' => 'multipart/form-data'));?>
+				<?php echo form_open(base_url() . 'index.php?union/attendance/do_update/'.$row['id'] , array('class' => 'form-horizontal form-bordered','target'=>'_top', 'id' => 'form', 'enctype' => 'multipart/form-data'));?>
 				
 				<div class="panel-heading">
 					<h4 class="panel-title">

@@ -17,8 +17,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title><?php echo $page_title;?> | <?php echo $system_title;?></title>
-    <meta name="keywords" content="SNAT BURIAL AGM Management System"/>
-    <meta name="description" content="SNAT BURIAL AGM Management System Management System">
+    <meta name="keywords" content="SNAT union AGM Management System"/>
+    <meta name="description" content="SNAT union AGM Management System Management System">
     <meta name="author" content="Sicelo Thabani Hlanze">
     <?php include 'includes/includes_top.php'; ?>
 
@@ -198,15 +198,15 @@
 
                             <div style="margin-top:40px;" class="no-print">
                                 <?php if (($claim['status'] ?? '') == 'PENDING'): ?>
-                                    <a href="<?php echo base_url('index.php?burial/claims/approve/' . ($claim['id'] ?? '')); ?>" class="btn btn-success" id="approve_btn">Approve</a>
-                                    <a href="<?php echo base_url('index.php?burial/claims/reject/' . ($claim['id'] ?? '')); ?>" class="btn btn-danger" id="reject_btn">Reject</a>
+                                    <a href="<?php echo base_url('index.php?union/claims/approve/' . ($claim['id'] ?? '')); ?>" class="btn btn-success" id="approve_btn">Approve</a>
+                                    <a href="<?php echo base_url('index.php?union/claims/reject/' . ($claim['id'] ?? '')); ?>" class="btn btn-danger" id="reject_btn">Reject</a>
                                 <?php elseif (($claim['status'] ?? '') == 'APPROVED'): ?>
-                                    <a href="<?php echo base_url('index.php?burial/approved_claims/pay/' . ($claim['id'] ?? '')); ?>" class="btn btn-primary" id="pay_btn">Pay</a>
+                                    <a href="<?php echo base_url('index.php?union/approved_claims/pay/' . ($claim['id'] ?? '')); ?>" class="btn btn-primary" id="pay_btn">Pay</a>
                                     <span class="label label-success" style="margin-left:10px;">Status: APPROVED</span>
                                 <?php else: ?>
                                     <span class="label label-default">Status: <?php echo htmlspecialchars($claim['status'] ?? '-'); ?></span>
                                 <?php endif; ?>
-                                <a href="<?php echo base_url('index.php?burial/claims'); ?>" class="btn btn-default">Back to Claims</a>
+                                <a href="<?php echo base_url('index.php?union/claims'); ?>" class="btn btn-default">Back to Claims</a>
                             </div>
 
                         </div>

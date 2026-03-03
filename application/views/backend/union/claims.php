@@ -177,7 +177,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-md-3 control-label"><?php echo get_phrase('place_of_burial');?> <span class="required">*</span></label>
+                        <label class="col-md-3 control-label"><?php echo get_phrase('place_of_union');?> <span class="required">*</span></label>
                         <div class="col-md-7">
                             <input type="text" class="form-control" name="place_of_burial" required>
                         </div>

@@ -75,7 +75,7 @@
 
       // 🔥 AJAX call to update status in DB
       $.ajax({
-        url: "<?php echo base_url()?>index.php?burial/update_with_momo",
+        url: "<?php echo base_url()?>index.php?union/update_with_momo",
         type: "POST",
         data: {
           attendeeid: "<?= $param2 ?>"

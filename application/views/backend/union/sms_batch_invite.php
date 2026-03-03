@@ -84,7 +84,7 @@ $(document).ready(function() {
 
         // first request to get total count
         $.ajax({
-            url: "<?php echo base_url('index.php?burial/invite_batch_init'); ?>",
+            url: "<?php echo base_url('index.php?union/invite_batch_init'); ?>",
             method: "POST",
             dataType: "json",
             success: function(initRes) {
@@ -98,7 +98,7 @@ $(document).ready(function() {
                 // process batches sequentially
                 function processNextBatch() {
                     $.ajax({
-                        url: "<?php echo base_url('index.php?burial/invite_batch'); ?>",
+                        url: "<?php echo base_url('index.php?union/invite_batch'); ?>",
                         method: "POST",
                         dataType: "json",
                         data: {

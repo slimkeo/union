@@ -19,8 +19,8 @@
 		<!-- Basic -->
 		
 		<title><?php echo $page_title;?> | <?php echo $system_title;?></title>
-			<meta name="keywords" content="SNAT BURIAL AGM Management System"/>
-	<meta name="description" content="SNAT BURIAL AGM Management System Management System">
+			<meta name="keywords" content="SNAT union AGM Management System"/>
+	<meta name="description" content="SNAT union AGM Management System Management System">
 	<meta name="author" content="Sicelo Thabani Hlanze">
 		<?php include 'includes/includes_top.php';?>
 		

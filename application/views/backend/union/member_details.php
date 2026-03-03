@@ -67,7 +67,7 @@ $total_monthly = $principal_fee + $beneficiary_fee;
             <button onclick="window.print()" class="btn btn-primary">
                 <i class="fa fa-print"></i> Print Profile
             </button>
-            <a href="<?php echo base_url('index.php?burial/beneficiaries/'.$row['id']); ?>" class="btn btn-info">
+            <a href="<?php echo base_url('index.php?union/beneficiaries/'.$row['id']); ?>" class="btn btn-info">
                 <i class="fa fa-users"></i> Manage Beneficiaries
             </a>
         </div>
@@ -75,7 +75,7 @@ $total_monthly = $principal_fee + $beneficiary_fee;
         <!-- PAGE 1: MEMBER INFORMATION -->
         <div class="member-profile print-page">
             <div class="profile-header">
-                <h2>SNAT BURIAL SCHEME</h2>
+                <h2>SNAT union</h2>
                 <p>Member Profile</p>
                 <p>Generated on: <?php echo date('d-m-Y H:i:s'); ?></p>
             </div>
@@ -84,7 +84,7 @@ $total_monthly = $principal_fee + $beneficiary_fee;
                 <div class="section-title">Member Information</div>
                 <div class="info-grid">
                     <div class="info-row">
-                        <span class="info-label">SNAT Burial Account:</span>
+                        <span class="info-label">SNAT union Account:</span>
                         <span class="info-value"><?php echo $row['id']; ?></span>
                     </div>
                     <div class="info-row">
@@ -168,7 +168,7 @@ $total_monthly = $principal_fee + $beneficiary_fee;
         <!-- PAGE 2: BENEFICIARIES -->
         <div class="member-profile print-page page-break">
             <div class="profile-header">
-                <h2>SNAT BURIAL SCHEME</h2>
+                <h2>SNAT union SCHEME</h2>
                 <p>Beneficiaries List - <?php echo $row['surname'].' '.$row['name']; ?></p>
             </div>
 
@@ -242,7 +242,7 @@ $total_monthly = $principal_fee + $beneficiary_fee;
 
             <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #333;">
                 <p style="text-align: center; font-size: 12px; color: #666;">
-                    This is a computer-generated document. For official records, please contact SNAT Burial Scheme office.
+                    This is a computer-generated document. For official records, please contact SNAT union Scheme office.
                 </p>
             </div>
         </div>

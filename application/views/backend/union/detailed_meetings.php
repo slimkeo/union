@@ -12,7 +12,7 @@
 										<h2 class="panel-title">AGM  Picker</h2>
 									</header>
 									<div class="panel-body">
-										<?php echo form_open(base_url() . 'index.php?burial/report_per_agm' , array('class' => 'form-horizontal form-bordered validate'));?>
+										<?php echo form_open(base_url() . 'index.php?union/report_per_agm' , array('class' => 'form-horizontal form-bordered validate'));?>
 						
 											<div class="form-group">
 												<label class="col-md-3 control-label">EVENT </label>

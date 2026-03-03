@@ -63,7 +63,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="<?php echo base_url(); ?>index.php?burial/claims/view/<?php echo $row['id']; ?>" 
+                                <a href="<?php echo base_url(); ?>index.php?union/claims/view/<?php echo $row['id']; ?>" 
                                    class="btn btn-xs btn-info" target="_blank">
                                     <i class="fa fa-eye"></i> View
                                 </a>

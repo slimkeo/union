@@ -79,7 +79,7 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "ajax": {
-            "url": "<?php echo base_url('index.php?burial/get_pending_members');?>",
+            "url": "<?php echo base_url('index.php?union/get_pending_members');?>",
             "type": "POST"
         },
 
