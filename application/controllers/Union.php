@@ -149,6 +149,8 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $data['name']        = $this->input->post('name');
         $data['cellnumber']  = $this->input->post('cellnumber');
         $data['dob']         = $this->input->post('dob');
+        $data['employment_status']    = $this->input->post('employment_status');
+        $data['branch']    = $this->input->post('branch');
         $data['gender']      = $this->input->post('gender');
         $data['schoolcode']  = $this->input->post('schoolcode');
         

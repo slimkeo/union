@@ -93,9 +93,8 @@
                     <div class="form-group" id="amount_group" style="display: none;">
                         <label class="col-md-3 control-label">Amount Per Month <span style="color: red;">*</span></label>
                         <div class="col-md-7">
-                            <input type="number" class="form-control" id="amount_per_month" name="amount_per_month" 
-                                   step="0.01" min="0.01" placeholder="0.00" required>
-                            <small class="form-text text-muted">Should be auto-calculated from member's plan / beneficiaries</small>
+                            <input type="number" class="form-control" id="amount_per_month" name="amount_per_month"  placeholder="0.00" required>
+                            <small class="form-text text-muted">Enter the amount per month (E4.167 for E50.00 per year)</small>
                         </div>
                     </div>
 
@@ -190,7 +189,6 @@ $(document).ready(function() {
                         $('#year_group, #months_group, #amount_group, #total_group, #description_group, #source_group').show();
 
                         load_available_months($(this).data('id'));
-                        fetch_member_payment_amount($(this).data('id'));
 
                         $('#submit_btn').prop('disabled', false);
                         $('#member_search_results').hide();
@@ -248,7 +246,6 @@ $(document).ready(function() {
                 $('#months_container').off('change', '.month-checkbox');
                 $('#months_container').on('change', '.month-checkbox', function() {
                     calculate_total();
-                    $('input[name="bulk_year"][value=""]').prop('checked', true);
                 });
 
                 calculate_total();
@@ -303,11 +300,10 @@ $(document).ready(function() {
             if (String(itemYear) === String(year)) {
                 $(this).prop('checked', true);
                 $item.css({
-                    'opacity': '0.6',
-                    'background-color': '#f0f8ff',
-                    'pointer-events': 'none'
+                    'opacity': '1',
+                    'background-color': '#f0f8ff'
                 });
-                $item.find('label').css('cursor', 'not-allowed');
+                $item.find('label').css('cursor', 'pointer');
                 count++;
             } else {
                 $(this).prop('checked', false);
@@ -342,13 +338,6 @@ $(document).ready(function() {
     }
 
     $('#amount_per_month').on('input change', calculate_total);
-
-    // Placeholder – replace with real logic
-    function fetch_member_payment_amount(member_id) {
-        // Simulate / replace with actual AJAX call to get real amount
-        $('#amount_per_month').val(150.00);
-        calculate_total();
-    }
 
     // Close search dropdown when clicking outside
     $(document).on('click', function(e) {
