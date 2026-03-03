@@ -88,7 +88,6 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $data['gender']      = $this->input->post('gender');
         $data['employment_status']    = $this->input->post('employment_status');
         $data['branch']    = $this->input->post('branch');
-        $data['resident']    = $this->input->post('resident');
         $data['schoolcode']  = $this->input->post('schoolcode');
         
         // Format cellnumber: append 268 if not present
@@ -151,7 +150,6 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $data['cellnumber']  = $this->input->post('cellnumber');
         $data['dob']         = $this->input->post('dob');
         $data['gender']      = $this->input->post('gender');
-        $data['resident']    = $this->input->post('resident');
         $data['schoolcode']  = $this->input->post('schoolcode');
         
         // Format cellnumber: append 268 if not present
@@ -2696,7 +2694,6 @@ public function member_subscription($memberid)
                 'dob'           => $pending['dob'],
                 'gender'        => $gender,
                 'schoolcode'    => $pending['schoolcode'],
-                'resident'      => $pending['resident'],
                 'createdate'    => date('Y-m-d H:i:s'),
                 'timestamp'     => date('Y-m-d H:i:s'),
                 'user'          => $this->session->userdata('user_id'),

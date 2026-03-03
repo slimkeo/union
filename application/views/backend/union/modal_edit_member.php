@@ -131,13 +131,6 @@ foreach ($edit_data as $row):
             </div>
           </div>
 
-          <!-- PERMANENT RESIDENCY -->
-          <div class="form-group">
-            <label class="col-md-3 control-label">Permanent Residency</label>
-            <div class="col-md-7">
-              <input type="text" class="form-control" name="resident" value="<?php echo htmlspecialchars($row['resident'] ?? ''); ?>"/>
-            </div>
-          </div>
 
           <!-- NOMINEE (ONLY ONE PER MEMBER) -->
           <div class="form-group">

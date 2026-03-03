@@ -193,14 +193,6 @@
 			                       placeholder="School code">
 			            </div>
 			        </div>
-			        <!-- SCHOOL CODE -->
-			        <div class="form-group">
-			            <label class="col-md-3 control-label">Permanent Residency</label>
-			            <div class="col-md-7">
-			                <input type="text" class="form-control" name="resident" 
-			                       placeholder="Plot 4" require>
-			            </div>
-			        </div>
 
 		        <!-- NOMINEE SECTION (ONLY ONE ALLOWED) -->
 		        <div class="form-group">
