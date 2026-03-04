@@ -11,7 +11,7 @@
 			</li>
 			<li>
 				<a href="#snat" data-toggle="tab"><i class="fa fa-upload"></i>
-					Upload SNAT Staff Spreadsheet
+					Upload rivate Members spreadsheet
 				</a>
 			</li>
 		</ul>

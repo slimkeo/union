@@ -1586,27 +1586,11 @@ public function member_subscription($memberid)
             redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
         }
 
-        // Validate column count
-        if (count($first_row) < 4) {
+        // Validate column count (we expect at least 8 columns so that
+        // employeeno, fullname, idnumber and amount are available)
+        if (count($first_row) < 8) {
             fclose($handle);
-            $this->session->set_flashdata('flash_message_error', 'CSV must have at least 4 columns (employeeno, fullname, idnumber, amount)');
-            redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
-        }
-
-        // Validate that first row contains headers
-        $expected_headers = ['employeeno', 'fullname', 'idnumber', 'amount'];
-        $first_row_lower = array_map('strtolower', array_map('trim', $first_row));
-        $headers_match = true;
-        for ($i = 0; $i < 4; $i++) {
-            if (trim($first_row_lower[$i]) !== $expected_headers[$i]) {
-                $headers_match = false;
-                break;
-            }
-        }
-        
-        if (!$headers_match) {
-            fclose($handle);
-            $this->session->set_flashdata('flash_message_error', 'CSV must have headers in the first row: employeeno, fullname, idnumber, amount');
+            $this->session->set_flashdata('flash_message_error', 'CSV must have at least 8 columns so that employeeno, fullname, idnumber and amount are present.');
             redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
         }
 
@@ -1670,7 +1654,6 @@ public function member_subscription($memberid)
         }
 
         $subscription_date = $month . '-01';
-        $columns = ['employeeno', 'fullname', 'idnumber', 'amount'];
 
         $handle = fopen($temp_file, 'r');
         if ($handle === false) {
@@ -1696,9 +1679,6 @@ public function member_subscription($memberid)
         $missing = [];
         $skipped = 0;
         
-        // Skip header row since we already validated it
-        $header_row = fgetcsv($handle);
-
         while (($row = fgetcsv($handle)) !== false) {
             // Skip rows until we reach the offset
             if ($current_row < $offset) {
@@ -1719,17 +1699,15 @@ public function member_subscription($memberid)
                 continue;
             }
 
-            // Build associative row using fixed column names
-            $row_assoc = [];
-            foreach ($columns as $i => $col) {
-                $row_assoc[$col] = isset($row[$i]) ? trim($row[$i]) : '';
-            }
-
-            // Extract fields
-            $employeeno = trim($row_assoc['employeeno'] ?? '');
-            $idnumber = trim($row_assoc['idnumber'] ?? '');
-            $amount = trim($row_assoc['amount'] ?? '');
-            $fullname = trim($row_assoc['fullname'] ?? '');
+            // Extract fields from fixed positions:
+            // 1st column => employeeno
+            // 2nd column => fullname
+            // 3rd column => idnumber
+            // 8th column => amount
+            $employeeno = isset($row[0]) ? trim($row[0]) : '';
+            $fullname   = isset($row[1]) ? trim($row[1]) : '';
+            $idnumber   = isset($row[2]) ? trim($row[2]) : '';
+            $amount     = isset($row[7]) ? trim($row[7]) : '';
 
             // Skip rows with no ID/employee number or invalid amounts
             if (empty($employeeno) && empty($idnumber)) {
