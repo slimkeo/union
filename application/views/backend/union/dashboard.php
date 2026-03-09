@@ -1,60 +1,50 @@
 <?php 
-	$current_year=date("Y");
-	$year=$current_year;
-	
-	// Total subscriptions count
-	$this->db->from('members');
-	$total_members = $this->db->count_all_results();
+    // Overall (all-time) dashboard summaries based directly on core tables.
+    $current_year = date("Y");
+    $year         = $current_year;
 
-	// Total Claims count
-	$this->db->where('created_at >=', $year . '-01-01');
-	$this->db->where('created_at <=', $year . '-12-31');
-	$this->db->from('claims');
-	$total_claims = $this->db->count_all_results();
+    // Total members (all time)
+    $this->db->from('members');
+    $total_members = $this->db->count_all_results();
 
-	// Total Claims Amount (sum of all claims)
-	$this->db->where('created_at >=', $year . '-01-01');
-	$this->db->where('created_at <=', $year . '-12-31');
-	$this->db->select_sum('amount');
-	$query = $this->db->get('claims'); 
-	$claims_amount = $query->row()->amount;
-	if($claims_amount==NULL){$claims_amount=0;}
+    // Total claims count (all time)
+    $this->db->from('claims');
+    $total_claims = $this->db->count_all_results();
 
-	// Total subscriptions Amount
-	$this->db->where('created_at >=', $year . '-01-01');
-	$this->db->where('created_at <=', $year . '-12-31');
-	$this->db->select_sum('amount');
-	$query = $this->db->get('subscriptions'); 
-	$subscriptions_amount = $query->row()->amount;
-	if($subscriptions_amount==NULL){$subscriptions_amount=0;}
-	
-	// Approved Claims Amount
-	$this->db->where('created_at >=', $year . '-01-01');
-	$this->db->where('created_at <=', $year . '-12-31');
-	$this->db->where('status','approved');
-	$this->db->select_sum('amount');
-	$query = $this->db->get('claims'); 
-	$approved_claims = $query->row()->amount;
-	if($approved_claims==NULL){$approved_claims=0;}
+    // Total claims amount (all time, based on claims.amount)
+    $this->db->select_sum('amount');
+    $query         = $this->db->get('claims');
+    $claims_amount = $query->row()->amount;
+    if ($claims_amount == NULL) { $claims_amount = 0; }
 
-	// Pending Claims Amount
-	$this->db->where('created_at >=', $year . '-01-01');
-	$this->db->where('created_at <=', $year . '-12-31');
-	$this->db->where('status','pending');
-	$this->db->select_sum('amount');
-	$query = $this->db->get('claims'); 
-	$pending_claims =$query->row()->amount;
-	if($pending_claims ==NULL){$pending_claims=0;};
-	
-	// Total subscriptions count
-	$this->db->where('created_at >=', $year . '-01-01');
-	$this->db->where('created_at <=', $year . '-12-31');
-	$this->db->from('subscriptions');
-	$total_subscriptions = $this->db->count_all_results();
+    // Total subscriptions amount (all time, only type = 'Subscription')
+    $this->db->where('type', 'Subscription');
+    $this->db->select_sum('amount');
+    $query               = $this->db->get('subscriptions');
+    $subscriptions_amount = $query->row()->amount;
+    if ($subscriptions_amount == NULL) { $subscriptions_amount = 0; }
+    
+    // Approved claims amount (all time)
+    $this->db->where('status', 'approved');
+    $this->db->select_sum('amount');
+    $query          = $this->db->get('claims');
+    $approved_claims = $query->row()->amount;
+    if ($approved_claims == NULL) { $approved_claims = 0; }
 
-	// Calculate variance
-	$variance = $subscriptions_amount-$claims_amount;
+    // Pending claims amount (all time)
+    $this->db->where('status', 'pending');
+    $this->db->select_sum('amount');
+    $query          = $this->db->get('claims');
+    $pending_claims = $query->row()->amount;
+    if ($pending_claims == NULL) { $pending_claims = 0; }
+    
+    // Total subscriptions count (all time, only type = 'Subscription')
+    $this->db->where('type', 'Subscription');
+    $this->db->from('subscriptions');
+    $total_subscriptions = $this->db->count_all_results();
 
+    // Calculate variance (subscriptions - claims)
+    $variance = $subscriptions_amount - $claims_amount;
 ?>
 			
 		<div class="row">
@@ -76,7 +66,7 @@
 							<div class="info">
 								
 								<strong class="amount"><?php echo $total_members; ?></strong>
-								<span class="text-primary text-uppercase"><?php echo $current_year;?></span>
+								<span class="text-primary text-uppercase">Overall</span>
 							</div>
 						</div>
 					</div>
@@ -204,15 +194,18 @@
 													// Format the timestamp to get the end date in "Y-m-d" format
 													$enddated = date('Y-m-d', $endTimestamp);  // End date (e.g., "2023-05-31")
 
-												$this->db->where('created_at >=',$startdated);
-												$this->db->where('created_at <=',$enddated);
+												// Subscriptions by transaction date within this month
+												$this->db->where('date >=', $startdated);
+												$this->db->where('date <=', $enddated);
+												$this->db->where('type', 'Subscription');
 												$this->db->select_sum('amount');
 												$query = $this->db->get('subscriptions');
 												$monthly_subscriptions = $query->row()->amount;
 												if($monthly_subscriptions==NULL){$monthly_subscriptions=0;}
 												
-												$this->db->where('created_at >=',$startdated);
-												$this->db->where('created_at <=',$enddated);
+												// Claims by claim_date within this month
+												$this->db->where('claim_date >=', $startdated);
+												$this->db->where('claim_date <=', $enddated);
 												$this->db->select_sum('amount');
 												$query = $this->db->get('claims'); 
 												$monthly_claims = $query->row()->amount;
@@ -292,8 +285,9 @@
 													// Format the timestamp to get the end date in "Y-m-d" format
 												$enddated = date('Y-m-d', $endTimestamp);  // End date (e.g., "2023-05-31")
 
-											$this->db->where('created_at >=',$startdated);
-											$this->db->where('created_at <=',$enddated);
+											// Count of approved claims by claim_date within this month
+											$this->db->where('claim_date >=', $startdated);
+											$this->db->where('claim_date <=', $enddated);
 											$this->db->where('status','approved');
 											$this->db->from('claims');
 											$claims_count = $this->db->count_all_results();
@@ -374,15 +368,18 @@
 														// Format the timestamp to get the end date in "Y-m-d" format
 													$enddated = date('Y-m-d', $endTimestamp);  // End date (e.g., "2023-05-31")
 
-												$this->db->where('created_at >=',$startdated);
-												$this->db->where('created_at <=',$enddated);
+												// Subscriptions by transaction date within this month
+												$this->db->where('date >=', $startdated);
+												$this->db->where('date <=', $enddated);
+												$this->db->where('type', 'Subscription');
 												$this->db->select_sum('amount');
 												$query = $this->db->get('subscriptions');
 												$monthly_subscriptions = $query->row()->amount;
 												if($monthly_subscriptions==NULL){$monthly_subscriptions=0;}
 												
-												$this->db->where('created_at >=',$startdated);
-												$this->db->where('created_at <=',$enddated);
+												// Claims by claim_date within this month
+												$this->db->where('claim_date >=', $startdated);
+												$this->db->where('claim_date <=', $enddated);
 												$this->db->select_sum('amount');
 												$query = $this->db->get('claims'); 
 												$monthly_claims = $query->row()->amount;
@@ -492,9 +489,10 @@
 <?php
 $past7date = date('Y-m-d', strtotime('-7 days')); // Get the date from 7 days ago
 
-$this->db->where('created_at >=', $past7date);
-$this->db->where('created_at <=', date('Y-m-d')); // Up to today
-$this->db->order_by('created_at', 'DESC'); // Order by recent
+// Recent claims based on claim_date
+$this->db->where('claim_date >=', $past7date);
+$this->db->where('claim_date <=', date('Y-m-d')); // Up to today
+$this->db->order_by('claim_date', 'DESC'); // Order by recent
 $claims_query = $this->db->get('claims');
 $recent_claims = $claims_query->result_array();
 ?>
@@ -567,7 +565,7 @@ $recent_claims = $claims_query->result_array();
 												<h4 class="title">Total Claims</h4>
 												<div class="info">
 													<strong class="amount">E <?php echo number_format($claims_amount, 2, '.', ' ');?></strong><br/>
-													<span class="text-primary text-uppercase"><?php echo $current_year;?></span>
+													<span class="text-primary text-uppercase">Overall</span>
 												</div>
 											</div>
 										</div>
@@ -590,7 +588,7 @@ $recent_claims = $claims_query->result_array();
 												<h4 class="title">Total Subscriptions</h4>
 												<div class="info">
 													<strong class="amount">E <?php echo number_format($subscriptions_amount, 2, '.', ' ');?></strong><br/>
-													<span class="text-primary text-uppercase"><?php echo $current_year;?></span>
+													<span class="text-primary text-uppercase">Overall</span>
 												</div>
 											</div>
 										</div>
@@ -613,7 +611,7 @@ $recent_claims = $claims_query->result_array();
 												<h4 class="title">Variance</h4>
 												<div class="info">
 													<strong class="amount">E <?php echo number_format($variance, 2, '.', ' ');?></strong><br/>
-													<span class="text-primary text-uppercase"><?php echo $current_year;?></span>
+													<span class="text-primary text-uppercase">Overall</span>
 												</div>
 											</div>
 										</div>

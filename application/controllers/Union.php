@@ -1773,6 +1773,27 @@ public function member_subscription($memberid)
                     $inserted++;
                 }
             } else {
+                // No member found: still record the money as an unaccounted subscription.
+                // memberid remains NULL so reporting can allocate it to the "Unaccounted" bucket.
+                $subscription_data = [
+                    'memberid' => null,
+                    'date' => $subscription_date,
+                    'description' => ($upload_type === 'treasurer'
+                        ? 'Treasurer (Unlinked) : '.date('F Y', strtotime($subscription_date))
+                        : 'SNAT EMP Subscription (Unlinked) : '.date('F Y', strtotime($subscription_date))),
+                    'amount' => $amount,
+                    'type' => 'Subscription',
+                    'status' => 'Paid',
+                    'source' => ($upload_type === 'treasurer' ? 'Treasure' : 'SNAT Employee'),
+                    'user' => $this->session->userdata('user_id'),
+                    'created_at' => date('Y-m-d')
+                ];
+
+                $this->db->insert('subscriptions', $subscription_data);
+                $inserted++;
+
+                // Keep track of which identifiers did not match a member (for UI info),
+                // but do NOT treat them as skipped amounts.
                 $missing[] = ['employeeno' => $employeeno, 'idnumber' => $idnumber, 'fullname' => $fullname];
             }
 
@@ -3196,32 +3217,103 @@ public function member_subscription($memberid)
 
         redirect(base_url() . 'index.php?union/payments', 'refresh');
     }
-    function date_range()
+    function daterange()
     {
         if ($this->session->userdata('user_login') != 1)
             redirect('login', 'refresh');
 
         /********** LOAD PAGE **********/
-        $page_data['page_name']  = 'emptypage';
-        $page_data['page_title'] = 'Subventions';
+        $page_data['page_name']  = 'daterange';
+        $page_data['page_title'] = 'Date Range';
 
         $this->load->view('backend/index', $page_data);
     } 
-    
-    
-    function per_branch()
+   
+    function daterangereport()
     {
         if ($this->session->userdata('user_login') != 1)
             redirect('login', 'refresh');
 
+        $startdate_input = $this->input->post('startdate');
+        $enddate_input   = $this->input->post('enddate');
+
+        if (empty($startdate_input) || empty($enddate_input)) {
+            $this->session->set_flashdata('flash_message_error', 'Please select a date range');
+            redirect(base_url() . 'index.php?union/daterange', 'refresh');
+        }
+
+        // Normalise to YYYY-MM-DD to keep all queries consistent
+        $start_ts = strtotime($startdate_input);
+        $end_ts   = strtotime($enddate_input);
+
+        if ($start_ts === false || $end_ts === false) {
+            $this->session->set_flashdata('flash_message_error', 'Invalid date format. Please use a valid date.');
+            redirect(base_url() . 'index.php?union/daterange', 'refresh');
+        }
+
+        $startdate = date('Y-m-d', $start_ts);
+        $enddate   = date('Y-m-d', $end_ts);
+
         /********** LOAD PAGE **********/
-        $page_data['page_name']  = 'emptypage';
-        $page_data['page_title'] = 'Subventions';
+        $page_data['page_name']  = 'daterangereport';
+        $page_data['page_title'] = 'Date Range';
+        $page_data['startdate'] = $startdate;
+        $page_data['enddate'] = $enddate;  
+        $this->load->view('backend/index', $page_data);
+    } 
+    
+    function perbranch()
+    {   
+        if ($this->session->userdata('user_login') != 1)
+            redirect('login', 'refresh');
+
+        /********** LOAD PAGE **********/
+        $page_data['page_name']  = 'perbranch';
+        $page_data['page_title'] = 'Per Branch';
 
         $this->load->view('backend/index', $page_data);
     } 
 
-    function per_status()
+    function branchreport()
+    {   
+        if ($this->session->userdata('user_login') != 1)
+            redirect('login', 'refresh');
+
+            if ($this->session->userdata('user_login') != 1)
+            redirect('login', 'refresh');
+
+        $startdate_input = $this->input->post('startdate');
+        $enddate_input   = $this->input->post('enddate');
+        $branch_id   = $this->input->post('branch');
+
+        if (empty($startdate_input) || empty($enddate_input) || empty($branch_id)) {
+            $this->session->set_flashdata('flash_message_error', 'Please select a date range and branch id');
+            redirect(base_url() . 'index.php?union/perbranch', 'refresh');
+        }
+
+        // Normalise to YYYY-MM-DD to keep all queries consistent
+        $start_ts = strtotime($startdate_input);
+        $end_ts   = strtotime($enddate_input);
+
+        if ($start_ts === false || $end_ts === false) {
+            $this->session->set_flashdata('flash_message_error', 'Invalid date format. Please use a valid date.');
+            redirect(base_url() . 'index.php?union/daterange', 'refresh');
+        }
+
+        $startdate = date('Y-m-d', $start_ts);
+        $enddate   = date('Y-m-d', $end_ts);
+
+        /********** LOAD PAGE **********/
+        $page_data['startdate'] = $startdate;
+        $page_data['enddate'] = $enddate;  
+        $page_data['branch_id'] = $branch_id;
+        $page_data['page_name']  = 'branchreport';
+        $page_data['page_title'] = 'Branch Report';
+
+        $this->load->view('backend/index', $page_data);
+    } 
+
+    function perstatus()
     {
         if ($this->session->userdata('user_login') != 1)
             redirect('login', 'refresh');
@@ -3233,16 +3325,122 @@ public function member_subscription($memberid)
         $this->load->view('backend/index', $page_data);
     }    
 
-    function subventions()
+    function subventions_date_range()
     {
         if ($this->session->userdata('user_login') != 1)
             redirect('login', 'refresh');
 
         /********** LOAD PAGE **********/
-        $page_data['page_name']  = 'emptypage';
-        $page_data['page_title'] = 'Subventions';
+        $page_data['page_name']  = 'subventions_date_range';
+        $page_data['page_title'] = 'Subventions Date Range';
 
         $this->load->view('backend/index', $page_data);
     }    
 
+    function subventions_report()
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect('login', 'refresh');
+
+        $startdate_input = $this->input->post('startdate');
+        $enddate_input   = $this->input->post('enddate');
+
+        if (empty($startdate_input) || empty($enddate_input)) {
+            $this->session->set_flashdata('flash_message_error', 'Please select a date range');
+            redirect(base_url() . 'index.php?union/subventions_date_range', 'refresh');
+        }
+
+        // Normalise to YYYY-MM-DD to keep all queries consistent
+        $start_ts = strtotime($startdate_input);
+        $end_ts   = strtotime($enddate_input);
+
+        if ($start_ts === false || $end_ts === false) {
+            $this->session->set_flashdata('flash_message_error', 'Invalid date format. Please use a valid date.');
+            redirect(base_url() . 'index.php?union/subventions_date_range', 'refresh');
+        }
+
+        $startdate = date('Y-m-d', $start_ts);
+        $enddate   = date('Y-m-d', $end_ts);
+
+        // Get per-branch subscription totals within the date range.
+        // This includes all branches, even those with zero subscriptions in the range.
+        $branch_query = $this->db->query("
+            SELECT 
+                b.id   AS branch_id,
+                b.name AS branch_name,
+                COUNT(s.id) AS subscription_count,
+                COALESCE(SUM(s.amount), 0) AS total_amount
+            FROM branches b
+            LEFT JOIN members m 
+                ON m.branch = b.id
+            LEFT JOIN subscriptions s 
+                ON s.memberid = m.id
+                AND s.type = 'Subscription'
+                AND s.date >= ?
+                AND s.date <= ?
+            GROUP BY b.id, b.name
+            ORDER BY total_amount DESC
+        ", [$startdate, $enddate]);
+
+        $branch_stats = $branch_query->result_array();
+
+        // Calculate "unaccounted" subscriptions: money with no member
+        // or member not linked to any branch in the date range.
+        $unaccounted_query = $this->db->query("
+            SELECT 
+                COUNT(s.id) AS subscription_count,
+                COALESCE(SUM(s.amount), 0) AS total_amount
+            FROM subscriptions s
+            LEFT JOIN members m ON m.id = s.memberid
+            WHERE s.type = 'Subscription'
+              AND s.date >= ?
+              AND s.date <= ?
+              AND (
+                    s.memberid IS NULL
+                    OR s.memberid = 0
+                    OR m.id IS NULL
+                    OR m.branch IS NULL
+                    OR m.branch = 0
+                  )
+        ", [$startdate, $enddate]);
+
+        $unaccounted = $unaccounted_query->row_array();
+        if (!$unaccounted) {
+            $unaccounted = ['subscription_count' => 0, 'total_amount' => 0];
+        }
+
+        // Overall totals and percentages
+        $overall_total_amount = 0;
+        $overall_total_count  = 0;
+        foreach ($branch_stats as $row) {
+            $overall_total_amount += (float) $row['total_amount'];
+            $overall_total_count  += (int) $row['subscription_count'];
+        }
+        $overall_total_amount += (float) $unaccounted['total_amount'];
+        $overall_total_count  += (int) $unaccounted['subscription_count'];
+
+        // Compute percentage share per branch (of overall total amount)
+        $branch_percentages = [];
+        if ($overall_total_amount > 0) {
+            foreach ($branch_stats as $row) {
+                $branch_percentages[$row['branch_id']] = round(
+                    ((float) $row['total_amount'] / $overall_total_amount) * 100,
+                    2
+                );
+            }
+        }
+
+        $page_data['branch_stats']           = $branch_stats;
+        $page_data['branch_percentages']     = $branch_percentages;
+        $page_data['unaccounted']            = $unaccounted;
+        $page_data['overall_total_amount']   = $overall_total_amount;
+        $page_data['overall_total_count']    = $overall_total_count;
+
+        /********** LOAD PAGE **********/
+        $page_data['page_name']  = 'subventions_report';
+        $page_data['page_title'] = 'Subventions Report';
+        $page_data['startdate'] = $startdate;
+        $page_data['enddate'] = $enddate;
+        $this->load->view('backend/index', $page_data);
+    }
 }

@@ -52,10 +52,10 @@
 					</li>								
 				</ul>
 			</li>	
-			<!-- Manage  Members and Branches -->			
+			<!-- Manage  Members and Branches  -->			
 			<li class="nav-parent <?php
 				if ($page_name == 'members' ||
-						$page_name == 'detailed_meetings' || $page_name == 'detailed_meetings')
+						$page_name == 'detailed_meetings' || $page_name == 'detailed_meetings' || $page_name == 'member_subscription')
 					echo 'nav-expanded nav-active';
 				?> ">
 					<a href="#">
@@ -63,7 +63,7 @@
 						<span>Manage Members</span>
 					</a>
 				<ul class="nav nav-children">
-					<li class="<?php if ($page_name == 'members' ) echo 'nav-active'; ?> ">
+					<li class="<?php if ($page_name == 'members' || $page_name == 'member_subscription') echo 'nav-active'; ?> ">
 						<a href="<?php echo base_url(); ?>index.php?union/members">
 							 <i class="fa fa-address-book"></i>
 							<span>All Members</span>
@@ -120,7 +120,7 @@
 			<!-- Manage  Payments -->
 			<li class="nav-parent <?php
 				if ($page_name == 'reports' ||
-						$page_name == 'date_range_reports' || $page_name == 'date_range' || $page_name == 'upload_spreadsheet_process' )
+						$page_name == 'date_range_reports' || $page_name == 'date_range' || $page_name == 'upload_spreadsheet_process' || $page_name == 'subventions_date_range' || $page_name == 'subventions_report')
 					echo 'nav-expanded nav-active';
 				?> ">
 					<a href="#">
@@ -129,25 +129,25 @@
 					</a>
 				<ul class="nav nav-children">
 					<li class="<?php if ($page_name == 'payments' ) echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/date_range">
+						<a href="<?php echo base_url(); ?>index.php?union/daterange">
 							 <i class="fa fa-calendar"></i>
 							<span>Date Range Reports</span>
 						</a>
 					</li>
-					<li class="<?php if ($page_name == 'per_branch' || $page_name == 'per_branch_report') echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/per_branch">
+					<li class="<?php if ($page_name == 'perbranch' || $page_name == 'branchreport') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/perbranch">
 							 <i class="fa fa-users"></i>
 							<span> Per Branch</span>
 						</a>
 					</li>
-					<li class="<?php if ($page_name == 'per_status' ||  $page_name == 'per_status_report') echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/per_status">
+					<li class="<?php if ($page_name == 'payment_type' ||  $page_name == 'payment_type_report') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/payment_type">
 							 <i class="fa fa-address-book-o"></i>
-							<span>Per Employement Status</span>
+							<span>Payment Type Report</span>
 						</a>
 					</li>	
-					<li class="<?php if ($page_name == 'subventions' ||  $page_name == 'subventions_report') echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/subventions">
+					<li class="<?php if ($page_name == 'subventions_date_range' ||  $page_name == 'subventions_report') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/subventions_date_range">
 							 <i class="fa fa-address-book-o"></i>
 							<span>Subventions Reports</span>
 						</a>
