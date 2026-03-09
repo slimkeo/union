@@ -23,7 +23,7 @@
 			<!-- TREASURER UPLOAD -->
 			<div class="tab-pane box active" id="treasurer" style="padding: 15px">
 				<div class="box-content">
-					<p><strong>CSV Format (there should be headers):</strong> Each row must have exactly 4 columns in this order:<br>
+					<p><strong>CSV Format (there should no be headers):</strong> Each row must have exactly 8 columns in this order:<br>
 					<code>employeeno, fullname, idnumber, amount</code><br>
 					We attempt to match by employee number or ID number and insert a statement per matched member.</p>
 					<?php echo form_open(base_url() . 'index.php?union/upload_spreadsheet_do', array('class' => 'form-horizontal','enctype'=>'multipart/form-data'));?>
