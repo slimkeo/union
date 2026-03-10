@@ -2028,12 +2028,11 @@ public function member_subscription($memberid)
             $surname                = trim($row[1] ?? '');           // Last Name
             $name                   = trim($row[2] ?? '');           // First Names
             $employeeno             = trim($row[3] ?? '');           // Employment number
-            $schoolcode             = trim($row[4] ?? '');           // School code
-            $institution            = trim($row[5] ?? '');           // School / Institution
-            $idnumber               = trim($row[6] ?? '');           // ID Number
+            $institution             = trim($row[4] ?? '');           // School code
+            $idnumber            = trim($row[5] ?? '');           // School / Institution
 
             // Cell number normalization
-            $cell_raw = trim($row[7] ?? '');
+            $cell_raw = trim($row[6] ?? '');
             $cell_clean = preg_replace('/[^0-9]/', '', $cell_raw);
 
             if (empty($cell_clean)) {
@@ -2060,9 +2059,10 @@ public function member_subscription($memberid)
                 }
             }
 
-            $branch_name            = trim($row[8] ?? '');           // SNAT Union Branch
-            $employment_status_desc = trim($row[9] ?? '');           // Employment Status
-            // 10 = Confirmation & Consent (skipped)
+            $branch_name            = trim($row[7] ?? '');           // SNAT Union Branch
+            $employment_status_desc = trim($row[8] ?? '');           // Employment Status
+            $schoolcode = trim($row[10] ?? '');           // Employment Status
+            // 9 = Confirmation & Consent (skipped)
 
             // Require at least one identifier
             if (empty($employeeno) && empty($idnumber)) {
