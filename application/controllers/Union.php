@@ -3292,6 +3292,7 @@ public function member_subscription($memberid)
             redirect('login', 'refresh');
 
         $payment_type = $this->input->post('payment_type');
+        $thabani="";
 
         $startdate_input = $this->input->post('startdate');
         $enddate_input = $this->input->post('enddate');
