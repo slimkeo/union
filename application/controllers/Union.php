@@ -3256,7 +3256,7 @@ public function member_subscription($memberid)
 
         /********** LOAD PAGE **********/
         $page_data['page_name']  = 'daterangereport';
-        $page_data['page_title'] = 'Date Range';
+        $page_data['page_title'] = 'Date Range Report '.$startdate.' to '.$enddate;
         $page_data['startdate'] = $startdate;
         $page_data['enddate'] = $enddate;  
         $this->load->view('backend/index', $page_data);
@@ -3273,6 +3273,56 @@ public function member_subscription($memberid)
 
         $this->load->view('backend/index', $page_data);
     } 
+
+    function payment_type()
+    {   
+        if ($this->session->userdata('user_login') != 1)
+            redirect('login', 'refresh');
+
+        /********** LOAD PAGE **********/
+        $page_data['page_name']  = 'payment_type';
+        $page_data['page_title'] = 'Payment Type';
+
+        $this->load->view('backend/index', $page_data);
+    } 
+
+    function payment_type_report()
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect('login', 'refresh');
+
+        $payment_type = $this->input->post('payment_type');
+
+        $startdate_input = $this->input->post('startdate');
+        $enddate_input = $this->input->post('enddate');
+
+
+        if (empty($startdate_input) || empty($enddate_input)) {
+            $this->session->set_flashdata('flash_message_error', 'Please select a date range');
+            redirect(base_url() . 'index.php?union/payment_type_picker', 'refresh');
+        }
+
+        // Normalise to YYYY-MM-DD to keep all queries consistent
+        $start_ts = strtotime($startdate_input);
+        $end_ts   = strtotime($enddate_input);
+
+        if ($start_ts === false || $end_ts === false) {
+            $this->session->set_flashdata('flash_message_error', 'Invalid date format. Please use a valid date.');
+            redirect(base_url() . 'index.php?union/payment_type_picker', 'refresh');
+        }
+
+        $startdate = date('Y-m-d', $start_ts);
+        $enddate   = date('Y-m-d', $end_ts);
+
+        /********** LOAD PAGE **********/
+        $page_data['page_name']  = 'payment_type_report';
+        $page_data['page_title'] = 'Payment Type Report';
+        $page_data['startdate'] = $startdate;
+        $page_data['enddate'] = $enddate;
+        $page_data['payment_type'] = $payment_type;
+        $this->load->view('backend/index', $page_data);
+    } 
+
 
     function branchreport()
     {   

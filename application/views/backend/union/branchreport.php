@@ -231,60 +231,6 @@
         </section>
     </div>
 </div>
-
-<div class="row">
-    <div class="col-md-12" data-appear-animation="bounceInUp">
-        <section class="panel">
-            <header class="panel-heading">
-                <h2 class="panel-title">Subscriptions in Range - <?php echo htmlspecialchars($branch_name); ?></h2>
-            </header>
-            <div class="panel-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped mb-none" id="datatable-subscriptions-branch">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Member</th>
-                                <th>Employee No</th>
-                                <th class="text-right">Amount (E)</th>
-                                <th>Date</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                            $this->db->select('s.*, m.name AS member_name, m.employeeno');
-                            $this->db->from('subscriptions s');
-                            $this->db->join('members m', 'm.id = s.memberid', 'left');
-                            $this->db->where('s.type', 'Subscription');
-                            $this->db->where('s.date >=', $startdate);
-                            $this->db->where('s.date <=', $enddate);
-                            $this->db->where('m.branch', $branch_id);
-                            $this->db->order_by('s.date', 'DESC');
-                            $subs_list = $this->db->get()->result_array();
-                            $j = 0;
-                            foreach ($subs_list as $row):
-                                $j++;
-                        ?>
-                            <tr>
-                                <td><?php echo $j; ?></td>
-                                <td><?php echo htmlspecialchars($row['member_name'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($row['employeeno'] ?? ''); ?></td>
-                                <td class="text-right"><?php echo number_format($row['amount'], 2, '.', ' '); ?></td>
-                                <td><?php echo htmlspecialchars($row['date']); ?></td>
-                                <td><?php echo htmlspecialchars($row['description']); ?></td>
-                                <td><?php echo htmlspecialchars($row['status']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </div>
-</div>
-
 <script type="text/javascript">
     (function() {
         var rangeDonutData = [
