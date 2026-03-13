@@ -26,7 +26,7 @@ $subs = $this->db->query("
     SELECT 
         COUNT(id) AS transaction_count,
         COALESCE(SUM(amount), 0) AS total_amount
-    FROM statements
+    FROM subscriptions
     WHERE type = 'Subscription'
       AND source = ?
       AND date >= ?
@@ -142,7 +142,7 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
                         <tbody>
                         <?php
                             $this->db->select('s.*, m.name AS member_name, m.idnumber, m.passbook_no');
-                            $this->db->from('statements s');
+                            $this->db->from('subscriptions s');
                             $this->db->join('members m', 'm.id = s.memberid', 'left');
                             $this->db->where('s.type', 'Subscription');
                             $this->db->where('s.source', $payment_type);
