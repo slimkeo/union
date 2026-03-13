@@ -28,7 +28,7 @@ $received = $this->db->query("
     SELECT 
         COUNT(id) AS count_received,
         COALESCE(SUM(amount), 0) AS total_received
-    FROM statements
+    FROM subscriptions
     WHERE type = 'Subscription'           -- adjust if your table uses different values
       AND source = ?
       AND date >= ?
@@ -40,13 +40,13 @@ $total_received     = $received ? (float)$received['total_received'] : 0;
 $count_received     = $received ? (int)$received['count_received'] : 0;
 
 
-// Total claims paid out (if your system pays claims via statements too)
-// If claims are NOT recorded in statements → keep this 0 or remove
+// Total claims paid out (if your system pays claims via subscriptions too)
+// If claims are NOT recorded in subscriptions → keep this 0 or remove
 $paid_out = $this->db->query("
     SELECT 
         COUNT(id) AS count_paid,
         COALESCE(SUM(amount), 0) AS total_paid
-    FROM statements
+    FROM subscriptions
     WHERE type = 'Claim'                  -- adjust if different
       AND source = ?
       AND date >= ?
@@ -216,7 +216,7 @@ $variance           = $total_received - $total_paid;
                         <tbody>
                         <?php
                             $this->db->select('s.*, m.name AS member_name, m.idnumber');
-                            $this->db->from('statements s');
+                            $this->db->from('subscriptions s');
                             $this->db->join('members m', 'm.id = s.memberid', 'left');
                             $this->db->where('s.source', $payment_type);
                             $this->db->where('s.date >=', $startdate);
