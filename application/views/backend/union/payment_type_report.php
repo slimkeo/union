@@ -19,7 +19,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <?php
 // ───────────────────────────────────────────────
-//              MAIN QUERY – SUBSCRIPTIONS ONLY
+//              MAIN SUMMARY QUERY
 // ───────────────────────────────────────────────
 
 $subs = $this->db->query("
@@ -34,7 +34,7 @@ $subs = $this->db->query("
       AND amount > 0
 ", [$payment_type, $startdate, $enddate])->row_array();
 
-$total_amount     = $subs ? (float)$subs['total_amount'] : 0;
+$total_amount      = $subs ? (float)$subs['total_amount'] : 0;
 $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
 ?>
 
@@ -91,7 +91,7 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
         </section>
     </div>
 
-    <!-- Payment Method (recap) -->
+    <!-- Payment Method Recap -->
     <div class="col-md-4">
         <section class="panel panel-featured-left panel-featured-info">
             <div class="panel-body">
@@ -133,7 +133,7 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
                                 <th>#</th>
                                 <th>Date</th>
                                 <th>Member</th>
-                                <th>ID / Passbook</th>
+                                <th>ID Number</th>
                                 <th>Description</th>
                                 <th class="text-right">Amount (E)</th>
                                 <th>Status</th>
@@ -141,7 +141,7 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
                         </thead>
                         <tbody>
                         <?php
-                            $this->db->select('s.*, m.name AS member_name, m.idnumber, m.passbook_no');
+                            $this->db->select('s.*, m.name AS member_name, m.idnumber, m.employeeno');
                             $this->db->from('subscriptions s');
                             $this->db->join('members m', 'm.id = s.memberid', 'left');
                             $this->db->where('s.type', 'Subscription');
@@ -150,19 +150,19 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
                             $this->db->where('s.date <=', $enddate);
                             $this->db->where('s.amount >', 0);
                             $this->db->order_by('s.date', 'DESC');
-                            $this->db->limit(100); // adjust as needed
+                            $this->db->limit(100); // ← adjust limit if needed
                             $transactions = $this->db->get()->result_array();
 
                             $i = 0;
                             foreach ($transactions as $row):
                                 $i++;
-                                $member_identifier = $row['idnumber'] ?: $row['passbook_no'] ?: '—';
+                                $member_id_display = $row['idnumber'] ?: $row['employeeno'] ?: '—';
                         ?>
                             <tr>
                                 <td><?php echo $i; ?></td>
-                                <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                <td><?php echo htmlspecialchars($row['date'] ?? '—'); ?></td>
                                 <td><?php echo htmlspecialchars($row['member_name'] ?? '—'); ?></td>
-                                <td><?php echo htmlspecialchars($member_identifier); ?></td>
+                                <td><?php echo htmlspecialchars($member_id_display); ?></td>
                                 <td><?php echo htmlspecialchars($row['description'] ?? 'Subscription'); ?></td>
                                 <td class="text-right text-success">
                                     <?php echo number_format($row['amount'], 2, '.', ' '); ?>
@@ -172,7 +172,11 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
                         <?php endforeach; ?>
 
                         <?php if ($i === 0): ?>
-                            <tr><td colspan="7" class="text-center text-muted py-4">No subscription payments found in this period</td></tr>
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    No subscription payments found in this period
+                                </td>
+                            </tr>
                         <?php endif; ?>
                         </tbody>
                     </table>
@@ -182,7 +186,6 @@ $transaction_count = $subs ? (int)$subs['transaction_count'] : 0;
     </div>
 </div>
 
-<!-- Optional: small summary bar chart or just amount display -->
 <div class="row mt-lg">
     <div class="col-md-12 text-center">
         <h4 class="text-muted">
