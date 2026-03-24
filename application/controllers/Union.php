@@ -744,7 +744,7 @@ public function get_members()
     $data = [];
     foreach($query->result() as $r){
    $data[] = [
-    $r->id,
+    '058-'.$r->id,
     $r->idnumber,
     $r->employeeno,
     $r->surname,
