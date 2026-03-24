@@ -78,6 +78,8 @@ function members($param1 = '', $param2 = '', $param3 = '')
     // CREATE MEMBER
     if ($param1 == 'create') {
 
+        $member_id;
+        
         $data['idnumber']    = $this->input->post('idnumber');
         $data['employeeno']  = $this->input->post('employeeno');
         $data['tscno']       = $this->input->post('tscno');
@@ -136,7 +138,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
             $this->session->set_flashdata('flash_message', 'Member added successfully');
         }
 
-        redirect(base_url() . 'index.php?union/members', 'refresh');
+        redirect(base_url() . 'index.php?union/member_details/'.$member_id, 'refresh');
     }
 
     // UPDATE MEMBER
@@ -210,7 +212,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
         }
 
         $this->session->set_flashdata('flash_message', 'Member updated successfully');
-        redirect(base_url() . 'index.php?union/members', 'refresh');
+        redirect(base_url() . 'index.php?union/member_details/'.$param2, 'refresh');
     }
 
     // DELETE MEMBER
@@ -360,7 +362,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $page_data['memberid']    = $memberid;
         $page_data['page_name']  = 'union/member_details';
         $page_data['page_title'] = 'Member Details';
-        $this->load->view('backend/member_details', $page_data);
+        $this->load->view('backend/union/member_details', $page_data);
     }
 
     /********** GENERATE MONTH RANGE ********************/
