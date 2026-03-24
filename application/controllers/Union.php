@@ -3470,12 +3470,12 @@ public function member_subscription($memberid)
         $overall_total_amount += (float) $unaccounted['total_amount'];
         $overall_total_count  += (int) $unaccounted['subscription_count'];
 
-        // Compute percentage share per branch (of overall total amount)
+        // Compute 30% amount per branch (e.g. 100.00 -> 30.00)
         $branch_percentages = [];
         if ($overall_total_amount > 0) {
             foreach ($branch_stats as $row) {
                 $branch_percentages[$row['branch_id']] = round(
-                    ((float) $row['total_amount'] / $overall_total_amount) * 100,
+                    ((float) $row['total_amount']) * 0.30,
                     2
                 );
             }

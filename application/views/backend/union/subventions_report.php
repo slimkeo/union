@@ -111,7 +111,7 @@
                                 <th>Branch</th>
                                 <th class="text-right">Total Subscriptions</th>
                                 <th class="text-right">Total Amount (E)</th>
-                                <th class="text-right">% of Total</th>
+                                <th class="text-right">30% of Total</th>
                                 <th>Remark</th>
                             </tr>
                         </thead>
