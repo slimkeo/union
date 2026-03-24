@@ -1,6 +1,161 @@
 <?php
 $member_data = $this->db->get_where('members', array('id' => $memberid))->result_array();
 foreach ($member_data as $row):
+
+$branch_name = '';
+if (!empty($row['branch'])) {
+    $branch_name = $this->db->select('name')->get_where('branches', array('id' => $row['branch']))->row('name');
+}
+
+$status_name = '';
+if (!empty($row['employment_status'])) {
+    $status_name = $this->db->select('description')->get_where('employment_status', array('id' => $row['employment_status']))->row('description');
+}
+
+$nominee = $this->db
+    ->order_by('id', 'ASC')
+    ->get_where('nominee', array('member_id' => $row['id']))
+    ->row_array();
+
+$subscriptions = $this->db
+    ->where('memberid', $row['id'])
+    ->order_by('date', 'DESC')
+    ->limit(12)
+    ->get('subscriptions')
+    ->result_array();
+?>
+
+<style>
+@media print {
+    body { margin: 0; padding: 0; }
+    .no-print { display: none !important; }
+    .panel { border: 1px solid #ddd !important; box-shadow: none !important; }
+    .panel-heading { background: #f5f5f5 !important; color: #333 !important; }
+    .table th, .table td { border: 1px solid #ccc !important; }
+}
+.profile-wrapper { margin-top: 10px; }
+.profile-logo { max-height: 56px; width: auto; }
+.profile-title { margin: 10px 0 0; font-weight: 700; }
+.table-profile td { vertical-align: middle !important; }
+.table-profile .label-cell { width: 32%; font-weight: 600; color: #555; background: #fafafa; }
+</style>
+
+<div class="row profile-wrapper">
+    <div class="col-md-12">
+        <div class="no-print text-right" style="margin-bottom: 15px;">
+            <a href="#" class="btn btn-warning"
+               onclick="showAjaxModal('<?php echo base_url('index.php?modal/popup/modal_edit_member/' . $row['id']); ?>')">
+                <i class="fa fa-edit"></i> Edit Member
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fa fa-print"></i> Print
+            </button>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-body text-center">
+                <img src="<?php echo base_url('uploads/logo.png'); ?>" alt="SNAT Logo" class="profile-logo">
+                <h3 class="profile-title">SNAT Union Member Profile</h3>
+                <p class="text-muted" style="margin-bottom: 0;">Generated on <?php echo date('d-m-Y H:i:s'); ?></p>
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-user"></i> Member Details</h4>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-bordered table-profile">
+                            <tr><td class="label-cell">SNAT Account</td><td><?php echo '058-' . $row['id']; ?></td></tr>
+                            <tr><td class="label-cell">Full Name</td><td><?php echo htmlspecialchars(trim(($row['surname'] ?? '') . ' ' . ($row['name'] ?? ''))); ?></td></tr>
+                            <tr><td class="label-cell">National ID</td><td><?php echo !empty($row['idnumber']) ? htmlspecialchars($row['idnumber']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">Employee No</td><td><?php echo !empty($row['employeeno']) ? htmlspecialchars($row['employeeno']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">TSC No</td><td><?php echo !empty($row['tscno']) ? htmlspecialchars($row['tscno']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">Date of Birth</td><td><?php echo !empty($row['dob']) ? htmlspecialchars($row['dob']) : 'N/A'; ?></td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-bordered table-profile">
+                            <tr><td class="label-cell">Gender</td><td><?php echo !empty($row['gender']) ? htmlspecialchars($row['gender']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">Cell Number</td><td><?php echo !empty($row['cellnumber']) ? htmlspecialchars($row['cellnumber']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">School Code</td><td><?php echo !empty($row['schoolcode']) ? htmlspecialchars($row['schoolcode']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">Institution</td><td><?php echo !empty($row['institution']) ? htmlspecialchars($row['institution']) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">Branch</td><td><?php echo !empty($branch_name) ? htmlspecialchars($branch_name) : 'N/A'; ?></td></tr>
+                            <tr><td class="label-cell">Employment Status</td><td><?php echo !empty($status_name) ? htmlspecialchars($status_name) : 'N/A'; ?></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <?php if (!empty($nominee)): ?>
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h4 class="panel-title"><i class="fa fa-user-plus"></i> Nominee</h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-profile" style="margin-bottom: 0;">
+                        <tr>
+                            <td class="label-cell">Nominee Full Name</td>
+                            <td><?php echo !empty($nominee['fullname']) ? htmlspecialchars($nominee['fullname']) : 'N/A'; ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><i class="fa fa-list"></i> Last 12 Subscriptions</h4>
+            </div>
+            <div class="panel-body">
+                <?php if (!empty($subscriptions)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Source</th>
+                                    <th class="text-right">Amount (E)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $i = 1; foreach ($subscriptions as $sub): ?>
+                                    <tr>
+                                        <td><?php echo $i++; ?></td>
+                                        <td><?php echo !empty($sub['date']) ? date('Y-m-d', strtotime($sub['date'])) : 'N/A'; ?></td>
+                                        <td><?php echo !empty($sub['description']) ? htmlspecialchars($sub['description']) : 'N/A'; ?></td>
+                                        <td><?php echo !empty($sub['type']) ? htmlspecialchars($sub['type']) : 'N/A'; ?></td>
+                                        <td><?php echo !empty($sub['status']) ? htmlspecialchars($sub['status']) : 'N/A'; ?></td>
+                                        <td><?php echo !empty($sub['source']) ? htmlspecialchars($sub['source']) : 'N/A'; ?></td>
+                                        <td class="text-right"><?php echo number_format((float)($sub['amount'] ?? 0), 2); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-warning" style="margin-bottom: 0;">
+                        No subscriptions found for this member.
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+endforeach;
+?>
+<?php
+$member_data = $this->db->get_where('members', array('id' => $memberid))->result_array();
+foreach ($member_data as $row):
 ?>
 
 <style>
@@ -58,7 +213,7 @@ foreach ($member_data as $row):
                 <div class="info-grid">
                     <div class="info-row">
                         <span class="info-label">SNAT union Account:</span>
-                        <span class="info-value"><?php echo '058'.$row['id']; ?></span>
+                        <span class="info-value"><?php echo '058-'.$row['id']; ?></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Full Name:</span>
