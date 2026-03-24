@@ -354,15 +354,21 @@ function members($param1 = '', $param2 = '', $param3 = '')
     {
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
- 
 
-        // Generate months: 36 months back from today + next 12 months
-        $page_data['months'] = $this->generate_month_range();
-        
-        $page_data['memberid']    = $memberid;
-        $page_data['page_name']  = 'union/member_details';
+        $page_data['memberid']   = $memberid;
+        $page_data['page_name']  = 'member_details';
         $page_data['page_title'] = 'Member Details';
-        $this->load->view('backend/union/member_details', $page_data);
+        $this->load->view('backend/index', $page_data);
+    }
+
+    /********** MEMBER PROFILE PRINT ********************/
+    function member_profile_print($memberid)
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url(), 'refresh');
+
+        $page_data['memberid'] = $memberid;
+        $this->load->view('backend/union/profile_print', $page_data);
     }
 
     /********** GENERATE MONTH RANGE ********************/
@@ -767,7 +773,6 @@ public function get_members()
 
     <a href="'.base_url('index.php?union/member_details/'.$r->id).'"
        class="btn btn-xs btn-info"
-       target="_blank"
        data-toggle="tooltip"
        data-placement="top"
        title="View Member">
