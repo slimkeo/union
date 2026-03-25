@@ -172,7 +172,10 @@
                     <div class="form-group">
                         <label class="col-md-3 control-label">Date of Entry <span class="required">*</span></label>
                         <div class="col-md-7">
-                            <input type="text" class="form-control" name="date_of_entry" required>
+                        <div class="input-daterange input-group" data-plugin-datepicker>
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input type="text" class="form-control" name="date_of_entry" required>
+                            </div>
                         </div>
                     </div>
 

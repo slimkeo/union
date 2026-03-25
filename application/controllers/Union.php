@@ -2301,13 +2301,12 @@ public function member_subscription($memberid)
             $claim_type = $this->input->post('claim_type') ? $this->input->post('claim_type') : 'BENEFICIARY';
             
             $data['member_id']      = $this->input->post('member_id');
-            $data['claim_type']     = $claim_type;
             $data['national_id']    = $this->input->post('national_id');
             $data['amount']         = $this->input->post('amount');
             $data['claim_date']     = $this->input->post('claim_date');
             $data['bank']           = $this->input->post('bank');
             $data['account']        = $this->input->post('account');
-            $data['mortuary']           = $this->input->post('date_of_entry');
+            $data['mortuary']           = $this->input->post('mortuary');
             $data['date_of_entry']        = $this->input->post('date_of_entry');
             $data['approved_date']  = !empty($this->input->post('approved_date')) ? $this->input->post('approved_date') : null;
             $data['status']         = $this->input->post('status') ? $this->input->post('status') : 'PENDING';
@@ -2318,48 +2317,11 @@ public function member_subscription($memberid)
             $data['notes']          = !empty($this->input->post('notes')) ? $this->input->post('notes') : null;
             $data['created_at']     = date('Y-m-d H:i:s');
             $data['updated_at']     = date('Y-m-d H:i:s');
+            $data['place_of_burial'] = !empty($this->input->post('place_of_burial')) ? $this->input->post('place_of_burial') : null;
+            $data['date_of_burial']  = !empty($this->input->post('date_of_burial')) ? $this->input->post('date_of_burial') : null;
+            $nominee_id = $this->input->post('nominee_id');
+            $data['nominee_id']      = !empty($nominee_id) ? $nominee_id : null;
 
-            // Handle based on claim type
-            if ($claim_type === 'BENEFICIARY') {
-                // BENEFICIARY CLAIM
-                $data['beneficiary_id'] = $this->input->post('beneficiary_id');
-                $data['place_of_burial'] = !empty($this->input->post('place_of_burial')) ? $this->input->post('place_of_burial') : null;
-                $data['date_of_burial']  = !empty($this->input->post('date_of_burial')) ? $this->input->post('date_of_burial') : null;
-                
-                // Check if national_id appears more than twice for beneficiary claims
-                if (!empty($data['national_id'])) {
-                    $this->db->where('national_id', $data['national_id'])
-                             ->where('claim_type', 'BENEFICIARY');
-                    $count = $this->db->get('claims')->num_rows();
-                    
-                    if ($count >= 2) {
-                        $this->session->set_flashdata('flash_message_error', 'A beneficiary with this national ID can only have maximum 2 claims. Please use a member claim if this is the member themselves.');
-                        redirect(base_url() . 'index.php?union/claims', 'refresh');
-                        return;
-                    }
-                }
-                
-                // Prevent duplicate claims for same member and beneficiary
-                $this->db->where('member_id', $data['member_id'])
-                         ->where('beneficiary_id', $data['beneficiary_id'])
-                         ->where('claim_type', 'BENEFICIARY')
-                         ->where('claim_date', $data['claim_date']);
-
-                $exists = $this->db->get('claims')->num_rows();
-
-                if ($exists > 0) {
-                    $this->session->set_flashdata('flash_message_error', 'A claim already exists for this member and beneficiary on this date');
-                    redirect(base_url() . 'index.php?union/claims', 'refresh');
-                    return;
-                }
-            } else {
-                // MEMBER/NOMINEE CLAIM
-                $nominee_id = $this->input->post('nominee_id');
-                $data['nominee_id']      = !empty($nominee_id) ? $nominee_id : null;
-                $data['beneficiary_id']  = null;
-                $data['place_of_burial'] = null;
-                $data['date_of_burial']  = null;
-            }
 
             $this->db->insert('claims', $data);
             $claim_id = $this->db->insert_id();
@@ -2411,7 +2373,7 @@ public function member_subscription($memberid)
 
             $this->session->set_flashdata('flash_message', 'Claim added successfully');
 
-            redirect(base_url() . 'index.php?union/claims', 'refresh');
+            redirect(base_url() . 'index.php?union/claim_details'.$claim_id, 'refresh');
         }
 
         // UPDATE CLAIM
