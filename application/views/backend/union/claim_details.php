@@ -8,7 +8,7 @@ $member_name = $member ? $member->surname . ' ' . $member->name : '-';
 
 // Get beneficiary name
 $nominee = $this->db->get_where('nominee', array('id' => $claim['nominee_id'] ?? 0))->row();
-$$nominee_name = $nominee ? $nominee->fullname : '-';
+$nominee_name = $nominee ? $nominee->fullname : '-';
 ?>
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
