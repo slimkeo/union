@@ -2323,8 +2323,8 @@ public function member_subscription($memberid)
             if ($claim_type === 'BENEFICIARY') {
                 // BENEFICIARY CLAIM
                 $data['beneficiary_id'] = $this->input->post('beneficiary_id');
-                $data['place_of_union'] = !empty($this->input->post('place_of_union')) ? $this->input->post('place_of_union') : null;
-                $data['date_of_union']  = !empty($this->input->post('date_of_union')) ? $this->input->post('date_of_union') : null;
+                $data['place_of_burial'] = !empty($this->input->post('place_of_burial')) ? $this->input->post('place_of_burial') : null;
+                $data['date_of_burial']  = !empty($this->input->post('date_of_burial')) ? $this->input->post('date_of_burial') : null;
                 
                 // Check if national_id appears more than twice for beneficiary claims
                 if (!empty($data['national_id'])) {
@@ -2357,8 +2357,8 @@ public function member_subscription($memberid)
                 $nominee_id = $this->input->post('nominee_id');
                 $data['nominee_id']      = !empty($nominee_id) ? $nominee_id : null;
                 $data['beneficiary_id']  = null;
-                $data['place_of_union'] = null;
-                $data['date_of_union']  = null;
+                $data['place_of_burial'] = null;
+                $data['date_of_burial']  = null;
             }
 
             $this->db->insert('claims', $data);
@@ -2437,13 +2437,13 @@ public function member_subscription($memberid)
             // Handle based on claim type
             if ($claim_type === 'BENEFICIARY') {
                 $data['beneficiary_id'] = $this->input->post('beneficiary_id');
-                $data['place_of_union'] = !empty($this->input->post('place_of_union')) ? $this->input->post('place_of_union') : null;
-                $data['date_of_union']  = !empty($this->input->post('date_of_union')) ? $this->input->post('date_of_union') : null;
+                $data['place_of_burial'] = !empty($this->input->post('place_of_burial')) ? $this->input->post('place_of_burial') : null;
+                $data['date_of_burial']  = !empty($this->input->post('date_of_burial')) ? $this->input->post('date_of_burial') : null;
                 $data['nominee_id']      = null;
             } else {
                 $data['beneficiary_id'] = null;
-                $data['place_of_union'] = null;
-                $data['date_of_union']  = null;
+                $data['place_of_burial'] = null;
+                $data['date_of_burial']  = null;
                 $data['nominee_id']      = !empty($this->input->post('nominee_id')) ? $this->input->post('nominee_id') : null;
             }
 

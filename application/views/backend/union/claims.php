@@ -177,7 +177,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-md-3 control-label"><?php echo get_phrase('place_of_union');?> <span class="required">*</span></label>
+                        <label class="col-md-3 control-label"><?php echo get_phrase('place_of_burial');?> <span class="required">*</span></label>
                         <div class="col-md-7">
                             <input type="text" class="form-control" name="place_of_burial" required>
                         </div>
@@ -237,8 +237,8 @@
                                 <div class="document-upload-row">
                                     <select class="form-control" name="document_description[]" required>
                                         <option value="">-- Select Document Type --</option>
-                                        <option value="ID OF Policy Holder">ID OF Policy Holder</option>
-                                        <option value="ID OF Deceased">ID OF Deceased</option>
+                                        <option value="ID OF UNION MEMBER">ID OF UNION MEMBER</option>
+                                        <option value="ID OF NOMINEE">ID OF NOMINEE</option>
                                         <option value="Passport">Passport</option>
                                         <option value="Death Certificate">Death Certificate</option>
                                         <option value="Payslip">Payslip</option>
@@ -371,8 +371,8 @@ $(document).ready(function() {
         var row = $('<div class="document-upload-row"></div>');
         row.append('<select class="form-control" name="document_description[]" required>' +
             '<option value="">-- Select Document Type --</option>' +
-            '<option value="ID OF Policy Holder">ID OF Policy Holder</option>' +
-            '<option value="ID OF Deceased">ID OF Deceased</option>' +
+            '<option value="ID OF UNION MEMBER">ID OF UNION MEMBER</option>' +
+            '<option value="ID OF NOMINEE">ID OF NOMINEE</option>' +
             '<option value="Passport">Passport</option>' +
             '<option value="Death Certificate">Death Certificate</option>' +
             '<option value="Payslip">Payslip</option>' +
