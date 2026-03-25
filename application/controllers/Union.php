@@ -2373,7 +2373,7 @@ public function member_subscription($memberid)
 
             $this->session->set_flashdata('flash_message', 'Claim added successfully');
 
-            redirect(base_url() . 'index.php?union/claim_details'.$claim_id, 'refresh');
+            redirect(base_url() . 'index.php?union/claims/view/'.$claim_id, 'refresh');
         }
 
         // UPDATE CLAIM

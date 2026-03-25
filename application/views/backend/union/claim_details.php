@@ -7,8 +7,8 @@ $member = $this->db->get_where('members', array('id' => $claim['member_id'] ?? 0
 $member_name = $member ? $member->surname . ' ' . $member->name : '-';
 
 // Get beneficiary name
-$beneficiary = $this->db->get_where('beneficiaries', array('id' => $claim['beneficiary_id'] ?? 0))->row();
-$beneficiary_name = $beneficiary ? $beneficiary->fullname : '-';
+$nominee = $this->db->get_where('nominee', array('id' => $claim['nominee_id'] ?? 0))->row();
+$$nominee_name = $nominee ? $nominee->fullname : '-';
 ?>
 <div class="row">
     <div class="col-md-10 col-md-offset-1">
@@ -23,7 +23,7 @@ $beneficiary_name = $beneficiary ? $beneficiary->fullname : '-';
                         <table class="table table-striped">
                             <tr><th>Claim ID</th><td><?php echo htmlspecialchars($claim['id'] ?? '-'); ?></td></tr>
                             <tr><th>Member</th><td><?php echo htmlspecialchars($member_name); ?></td></tr>
-                            <tr><th>Beneficiary</th><td><?php echo htmlspecialchars($beneficiary_name); ?></td></tr>
+                            <tr><th>Nominee</th><td><?php echo htmlspecialchars($nominee_name); ?></td></tr>
                             <tr><th>National ID</th><td><?php echo htmlspecialchars($claim['national_id'] ?? '-'); ?></td></tr>
                         </table>
                     </div>
