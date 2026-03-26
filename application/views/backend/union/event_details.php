@@ -32,7 +32,7 @@
                                 <td><?php echo $row['passbook']; ?></td>
                                 <td><?php echo $row['contact']; ?></td>
                                 <td><?php echo $row['momo']; ?></td>
-                                <td><?php echo $this->db->get_where('agms' , array('id' =>$row['agm']))->row()->description;?></td>
+                                <td><?php echo $this->db->get_where('events' , array('id' =>$row['event']))->row()->description;?></td>
                                 <td><?php echo date('d M, Y', strtotime($row['createdate'])); ?></td>
                                 <td>
                                     <!-- Payment DETAILS -->

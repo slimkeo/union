@@ -151,37 +151,16 @@
 							 <i class="fa fa-address-book-o"></i>
 							<span>Subventions Reports</span>
 						</a>
-					</li>								
+					</li>	
+					<li class="<?php if ($page_name == 'report_per_event' ||  $page_name == 'manage_attendance') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
+							 <i class="fa fa-address-book-o"></i>
+							<span>Events Attendance Reports</span>
+						</a>
+					</li>							
 				</ul>
 			</li>			
 			<?php } ?>
-			<!-- ADMIN MANAGEMENT PANEL -->
-			<?php if ($this->session->userdata('level') == 1 || $this->session->userdata('level') == 3  ) { ?>		
-			<li class="nav-parent <?php
-				if ($page_name == 'momo_agm' ||
-						$page_name == 'detailed_meetings' || $page_name == 'detailed_meetings')
-					echo 'nav-expanded nav-active';
-				?> ">
-					<a href="#">
-						<i class="fa fa-calendar-check-o"></i>
-						<span>Manage Events</span>
-					</a>
-				<ul class="nav nav-children">
-					<li class="<?php if ($page_name == 'detailed_meetings' ) echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
-							 <i class="fa fa-user"></i>
-							<span>Manage Attendance</span>
-						</a>
-					</li>
-					<li class="<?php if ($page_name == 'momo_agm' ) echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/momo_pay">
-							 <i class="fa fa-user"></i>
-							<span><?php echo get_phrase('pay_with_momo'); ?></span>
-						</a>
-					</li>
-				</ul>
-			</li>
-				<?php } ?>	
 			<!-- ADMIN MANAGEMENT PANEL -->
 			<?php if ($this->session->userdata('level') == 1) { ?>						
 			<li class="nav-parent <?php

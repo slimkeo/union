@@ -1373,7 +1373,7 @@ public function member_subscription($memberid)
         $eventid = ($eventid==null) ? $this->input->post('event') : $eventid ;
 
         $page_data['attendees']    = $this->db->get_where('attendance', array('event' => $eventid))->result_array();
-        $page_data['page_name']  = 'agm_details';
+        $page_data['page_name']  = 'event_details';
         $page_data['page_title'] = $this->db->get_where('events', array('id' => $eventid))->row()->description.' Details';
         $this->load->view('backend/index', $page_data);
     }    
