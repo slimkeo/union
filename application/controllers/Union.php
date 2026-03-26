@@ -1370,7 +1370,7 @@ public function member_subscription($memberid)
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
 
-        $eventid = ($eventid==null) ? $this->input->post('event') : $eventid ;
+        $eventid = ($eventid==null) ? $this->input->post('event_id') : $eventid ;
 
         $page_data['attendees']    = $this->db->get_where('attendance', array('event' => $eventid))->result_array();
         $page_data['page_name']  = 'event_details';
