@@ -1182,7 +1182,7 @@ public function member_subscription($memberid)
         }
 
         $page_data['attendees']   = $this->db->get('attendance')->result_array();
-        $page_data['agms']   = $this->db->get('agms')->result_array();
+        $page_data['events']   = $this->db->get('events')->result_array();
         $page_data['page_name']   = 'attendance';
         $page_data['page_title']  = 'Detailed Attendance';
         $this->load->view('backend/index', $page_data);
