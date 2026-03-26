@@ -12,8 +12,6 @@
                                 <th><div><?php echo get_phrase('#');?></div></th>
                                 <th><div><?php echo get_phrase('national_id');?></div></th>
                                 <th><div><?php echo get_phrase('fullname');?></div></th>
-                                <th><div><?php echo get_phrase('passbook');?></div></th>
-                                <th><div><?php echo get_phrase('contact');?></div></th>
                                 <th><div><?php echo get_phrase('momo');?></div></th>
                                 <th><div>AGM</div></th>
                                 <th><div><?php echo get_phrase('createdate');?></div></th>
@@ -29,8 +27,6 @@
                                 <td><?php echo $count++; ?></td>
                                 <td><?php echo $row['national_id']; ?></td>
                                 <td><?php echo $row['fullname']; ?></td>
-                                <td><?php echo $row['passbook']; ?></td>
-                                <td><?php echo $row['contact']; ?></td>
                                 <td><?php echo $row['momo']; ?></td>
                                 <td><?php echo $this->db->get_where('events' , array('id' =>$row['event']))->row()->description;?></td>
                                 <td><?php echo date('d M, Y', strtotime($row['createdate'])); ?></td>
