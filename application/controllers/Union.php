@@ -1364,17 +1364,17 @@ public function member_subscription($memberid)
     }
 
 
-    /********** report per agm ********************/
-    function report_per_agm($agmid="")
+    /********** report per event ********************/
+    function report_per_event($eventid="")
     {
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
 
-        $agmid = ($agmid==null) ? $this->input->post('agm') : $agmid ;
+        $eventid = ($eventid==null) ? $this->input->post('event') : $eventid ;
 
-        $page_data['attendees']    = $this->db->get_where('attendance', array('agm' => $agmid))->result_array();
+        $page_data['attendees']    = $this->db->get_where('attendance', array('event' => $eventid))->result_array();
         $page_data['page_name']  = 'agm_details';
-        $page_data['page_title'] = $this->db->get_where('agms', array('id' => $agmid))->row()->description.' Details';
+        $page_data['page_title'] = $this->db->get_where('events', array('id' => $eventid))->row()->description.' Details';
         $this->load->view('backend/index', $page_data);
     }    
 

@@ -14,11 +14,6 @@
                         <?php echo get_phrase('new_claim'); ?>
                     </a>
                 </li>
-                <li>
-                    <a href="#documents" data-toggle="tab"><i class="fa fa-file-o"></i> 
-                        <?php echo get_phrase('claim_documents');?>
-                    </a>
-                </li>
             </ul>
         </div>
         <!---CONTROL TABS END-->
@@ -85,11 +80,6 @@
                                 <a href="<?php echo base_url(); ?>index.php?union/print_claims_details/<?php echo $row['id'];?>" 
                                    class="btn btn-xs btn-info" target="_blank" data-toggle="tooltip" title="Print Claim">
                                     <i class="fa fa-print"></i>
-                                </a>
-
-                                <a href="#" class="btn btn-xs btn-success" data-toggle="tooltip" title="<?php echo get_phrase('edit');?>"
-                                   onClick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_claim_edit/<?php echo $row['id'];?>');">
-                                    <i class="fa fa-pencil"></i>
                                 </a>
 
                                 <a href="#" class="btn btn-xs btn-danger" data-toggle="tooltip" title="<?php echo get_phrase('delete');?>"
@@ -273,14 +263,6 @@
                 </div>
             </div>
             <!-- CREATION FORM ENDS -->
-
-
-            <!-- DOCUMENTS TAB STARTS -->
-            <div class="tab-pane box" id="documents">
-                <!-- ... keep the documents tab as is ... -->
-                <!-- (you can leave it unchanged unless you want to restrict document types) -->
-            </div>
-            <!-- DOCUMENTS TAB ENDS -->
 
         </div>
     </div>
