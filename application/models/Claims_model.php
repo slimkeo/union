@@ -18,7 +18,7 @@ class Claims_model extends CI_Model
     public function get_all_claims()
     {
         $columns = [
-            'id', 'member_id', 'claim_type', 'national_id', 'amount', 
+            'id', 'member_id', 'claim_type','nominee_id', 'national_id', 'amount', 
             'claim_date', 'place_of_burial', 'date_of_burial', 'approved_date', 
             'status', 'bank', 'account', 'payment_date', 'processed_by', 
             'approved_by', 'notes', 'created_at', 'updated_at'
