@@ -29,7 +29,6 @@
                             <th><div>#</div></th>
                             <th><div><?php echo get_phrase('member');?></div></th>
                             <th><div><?php echo get_phrase('nominee');?></div></th>
-                            <th><div>Claim Type</div></th>
                             <th><div><?php echo get_phrase('amount');?></div></th>
                             <th><div><?php echo get_phrase('claim_date');?></div></th>
                             <th><div><?php echo get_phrase('status');?></div></th>
@@ -47,18 +46,15 @@
                                 
                                 // Get nominee name
                                 $nominee_name = '—';
-                                if (!empty($row['nominee_id'])) {
+                              //  if (!empty($row['nominee_id'])) {
                                     $nominee = $this->db->get_where('nominee', array('id' => $row['nominee_id']))->row();
                                     $nominee_name = $nominee ? $nominee->fullname : '—';
-                                }
+                               // }
                         ?>
                         <tr>
                             <td><?php echo $i++; ?></td>
                             <td><?php echo htmlspecialchars($member_name); ?></td>
                             <td><?php echo htmlspecialchars($nominee_name); ?></td>
-                            <td>
-                                <span class="label label-success">NOMINEE</span>
-                            </td>
                             <td><?php echo number_format($row['amount'], 2); ?></td>
                             <td><?php echo date('d-m-Y', strtotime($row['claim_date'])); ?></td>
                             <td>
