@@ -16,7 +16,7 @@
                         <li>Typical/expected columns<br>
                             <code>Timestamp, Last Name, First Names, Employment Number, School Code, School / Institution, ID Number, Cell Number(MOMO active Number), SNAT Union Branch, Employment Status, Confirmation & Consent</code>
                         </li>
-                        <li><strong>MAKE SURE COLUMNS ARE IN THESE ORDER</strong></li>
+                        <li><strong>MAKE SURE COLUMNS ARE IN THIS ORDER</strong></li>
                         <li>Cell numbers are normalized automatically:<br>
                             → 8 digits (e.g. <code>76404197</code>) becomes <code>26876404197</code><br>
                             → Already 11 digits starting with 268 are kept as-is
