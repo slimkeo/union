@@ -46,10 +46,10 @@
                                 
                                 // Get nominee name
                                 $nominee_name = '—';
-                              //  if (!empty($row['nominee_id'])) {
+                                if (!empty($row['nominee_id'])) {
                                     $nominee = $this->db->get_where('nominee', array('id' => $row['nominee_id']))->row();
                                     $nominee_name = $nominee ? $nominee->fullname : '—';
-                               // }
+                                }
                         ?>
                         <tr>
                             <td><?php echo $i++; ?></td>
