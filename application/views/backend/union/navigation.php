@@ -164,6 +164,47 @@
 			?> ">
 				<a href="#">
 					<i class="fa fa-street-view"></i>
+					<span>Events Management</span>
+				</a>
+				<ul class="nav nav-children">
+					<!-- \Manage USers -->
+			<li class="<?php if ($page_name == 'manage_events') echo 'nav-active'; ?> ">
+				<a href="<?php echo base_url(); ?>index.php?union/manage_events">
+					<i class="fa fa-slideshare"></i> 
+					<span><?php echo get_phrase('manage_events'); ?></span>
+				</a>
+			</li>
+
+					<!-- events LIST Addition -->
+			<li class="<?php if ($page_name == 'attendance_reports') echo 'nav-active'; ?> ">
+				<a href="<?php echo base_url(); ?>index.php?union/attendance_reports">
+					<i class="fa fa-bullhorn"></i> 
+					<span><?php echo get_phrase('attendance_reports'); ?></span>
+				</a>
+			</li>
+					<!-- manage Security settings -->
+			<li class="<?php if ($page_name == 'security_settings') echo 'nav-active'; ?> ">
+				<a href="<?php echo base_url(); ?>index.php?union/security_settings">
+					<i class="fa fa-unlock-alt"></i> 
+					<span><?php echo get_phrase('security_settings'); ?></span>
+				</a>
+			</li>
+			
+			
+			
+				</ul>
+			</li>
+			
+				<?php } ?>	
+			<!-- ADMIN MANAGEMENT PANEL -->
+			<?php if ($this->session->userdata('level') == 1) { ?>						
+			<li class="nav-parent <?php
+			if ($page_name == 'manage_users' ||
+					$page_name == 'manage_events' || $page_name == 'security_settings' || $page_name == 'manage_system' )
+				echo 'nav-expanded nav-active';
+			?> ">
+				<a href="#">
+					<i class="fa fa-street-view"></i>
 					<span><?php echo get_phrase('administrative'); ?></span>
 				</a>
 				<ul class="nav nav-children">
