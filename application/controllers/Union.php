@@ -1346,14 +1346,14 @@ public function member_subscription($memberid)
 
             $this->db->where('id', $param2);
             $this->db->update('events', $data);
-            $this->session->set_flashdata('flash_message', get_phrase('AGM updated successfully'));
+            $this->session->set_flashdata('flash_message', get_phrase('Event updated successfully'));
             redirect(base_url() . 'index.php?union/manage_events', 'refresh');
         }
 
         if ($param1 == 'delete') {
             $this->db->where('id', $param2);
             $this->db->delete('events');
-            $this->session->set_flashdata('flash_message', get_phrase('AGM deleted successfully'));
+            $this->session->set_flashdata('flash_message', get_phrase('Event deleted successfully'));
             redirect(base_url() . 'index.php?union/manage_events', 'refresh');
         }
 
