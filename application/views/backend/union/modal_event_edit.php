@@ -1,18 +1,18 @@
 
 <?php
-$edit_data = $this->db->get_where( 'agms', array( 'id' => $param2 ) )->result_array();
+$edit_data = $this->db->get_where( 'events', array( 'id' => $param2 ) )->result_array();
 foreach ( $edit_data as $row ):
   ?>
   <div class="row">
     <div class="col-md-12">
       <section class="panel">
       
-        <?php echo form_open(base_url() . 'index.php?union/agms/do_update/'.$row['id'] , array('class' => 'form-horizontal form-bordered','target'=>'_top', 'id' => 'form', 'enctype' => 'multipart/form-data'));?>
+        <?php echo form_open(base_url() . 'index.php?union/manage_events/do_update/'.$row['id'] , array('class' => 'form-horizontal form-bordered','target'=>'_top', 'id' => 'form', 'enctype' => 'multipart/form-data'));?>
         
         <div class="panel-heading">
           <h4 class="panel-title">
                 <i class="fa fa-pencil-square"></i>
-          <?php echo get_phrase('edit_agm')." Acccount : ".$row['description'];?>
+          <?php echo get_phrase('edit_event').$row['description'];?>
               </h4>
         
         </div>
@@ -48,7 +48,7 @@ foreach ( $edit_data as $row ):
         <footer class="panel-footer">
           <div class="row">
             <div class="col-sm-9 col-sm-offset-3">
-              <button type="submit" class="btn btn-primary">EDIT AGM</button>
+              <button type="submit" class="btn btn-primary">EDIT EVENT</button>
             </div>
           </div>
         </footer>

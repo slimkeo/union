@@ -101,14 +101,14 @@
 						<!-- CLIENT EDITING LINK -->
 
 						<a href="#" class="btn btn-xs btn-success" data-placement="top" data-toggle="tooltip" 
-						data-original-title="<?php echo get_phrase('edit');?>" onClick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_agm_edit/<?php echo $row['id'];?>');">
+						data-original-title="<?php echo get_phrase('edit');?>" onClick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_event_edit/<?php echo $row['id'];?>');">
                         <i class="fa fa-pencil"></i>
                         </a>
 						
 
 						<!-- CLIENT DELETION LINK -->
 						<a href="#" class="btn btn-xs btn-danger" data-placement="top" data-toggle="tooltip"
-						 data-original-title="<?php echo get_phrase('delete');?>" onClick="confirm_modal('<?php echo base_url();?>index.php?union/agms/delete/<?php echo $row['id'];?>');">
+						 data-original-title="<?php echo get_phrase('delete');?>" onClick="confirm_modal('<?php echo base_url();?>index.php?union/manage_events/delete/<?php echo $row['id'];?>');">
                         <i class="fa fa-trash"></i>
                         </a>			
 
