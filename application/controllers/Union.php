@@ -1522,6 +1522,14 @@ public function member_subscription($memberid)
     }    
 
     /********** USER / MEMBER DETAILS ********************/
+    /**
+     * CSV upload: each row must be exactly four fields (Employee No, Full Name, ID Number, Amount).
+     */
+    private function upload_spreadsheet_csv_row_has_four_columns($row)
+    {
+        return is_array($row) && count($row) === 4;
+    }
+
     function upload_spreadsheet($user_id = '')
     {
         if ($this->session->userdata('user_login') != 1)
@@ -1593,11 +1601,28 @@ public function member_subscription($memberid)
             redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
         }
 
-        // Header row: exactly 4 columns — Employee No, Full Name, ID Number, Amount (data rows must match)
-        if (count($first_row) !== 4) {
+        $col_msg = 'CSV must have exactly 4 columns (Employee No, Full Name, ID Number, Amount). The first row should be the header row.';
+
+        if (!$this->upload_spreadsheet_csv_row_has_four_columns($first_row)) {
             fclose($handle);
-            $this->session->set_flashdata('flash_message_error', 'CSV must have exactly 4 columns (Employee No, Full Name, ID Number, Amount). The first row should be the header row.');
+            $this->session->set_flashdata('flash_message_error', $col_msg);
             redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
+        }
+
+        $line_num = 1;
+        while (($row = fgetcsv($handle)) !== false) {
+            $line_num++;
+            if (empty(array_filter($row))) {
+                continue;
+            }
+            if (!$this->upload_spreadsheet_csv_row_has_four_columns($row)) {
+                fclose($handle);
+                $this->session->set_flashdata(
+                    'flash_message_error',
+                    'Row ' . $line_num . ' does not have exactly 4 columns. ' . $col_msg
+                );
+                redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
+            }
         }
 
         fclose($handle);
@@ -1710,7 +1735,7 @@ public function member_subscription($memberid)
             }
 
             // Exactly 4 columns: Employee No, Full Name, ID Number, Amount
-            if (count($row) !== 4) {
+            if (!$this->upload_spreadsheet_csv_row_has_four_columns($row)) {
                 $skipped++;
                 $rows_processed++;
                 $current_row++;
