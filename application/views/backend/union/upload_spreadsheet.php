@@ -18,7 +18,7 @@
 			<!-- TREASURER UPLOAD -->
 			<div class="tab-pane box active" id="treasurer" style="padding: 15px">
 				<div class="box-content">
-					<p><strong>CSV Format (there should no be headers):</strong> Each row must have exactly 8 columns. Strictly Eswatini Government Spreadhseet, Now saved as a CSV MS-Dos<br>
+					<p><strong>CSV Format (Employee No, Full Name, ID Number,  Amount):</strong> Each row must have exactly 4 columns.<br>
 					We attempt to match by employee number or ID number and insert a statement per matched member.</p>
 					<?php echo form_open(base_url() . 'index.php?union/upload_spreadsheet_do', array('class' => 'form-horizontal','enctype'=>'multipart/form-data'));?>
 					<input type="hidden" name="upload_type" value="treasurer" />

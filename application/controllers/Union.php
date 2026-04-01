@@ -256,7 +256,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
                 $this->session->set_flashdata('flash_message_error', 'Branch already exist: Name Exists');
             } else {
                 $this->db->insert('branches', $data);
-                $this->session->set_flashdata('flash_message', 'Member added successfully');
+                $this->session->set_flashdata('flash_message', 'Branch added successfully');
             }
 
             redirect(base_url() . 'index.php?union/branches', 'refresh');
@@ -1593,11 +1593,10 @@ public function member_subscription($memberid)
             redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
         }
 
-        // Validate column count (we expect at least 8 columns so that
-        // employeeno, fullname, idnumber and amount are available)
-        if (count($first_row) < 8) {
+        // Header row: exactly 4 columns — Employee No, Full Name, ID Number, Amount (data rows must match)
+        if (count($first_row) !== 4) {
             fclose($handle);
-            $this->session->set_flashdata('flash_message_error', 'CSV must have at least 8 columns so that employeeno, fullname, idnumber and amount are present.');
+            $this->session->set_flashdata('flash_message_error', 'CSV must have exactly 4 columns (Employee No, Full Name, ID Number, Amount). The first row should be the header row.');
             redirect(base_url() . 'index.php?union/upload_spreadsheet', 'refresh');
         }
 
@@ -1679,7 +1678,7 @@ public function member_subscription($memberid)
 
         $is_duplicate_month = ($existing_count > 0);
 
-        // Skip to offset
+        // First line is the header row (skipped). Offset counts data rows only.
         $current_row = 0;
         $rows_processed = 0;
         $inserted = 0;
@@ -1687,13 +1686,17 @@ public function member_subscription($memberid)
         $skipped = 0;
         
         while (($row = fgetcsv($handle)) !== false) {
-            // Skip rows until we reach the offset
-            if ($current_row < $offset) {
+            if ($current_row === 0) {
                 $current_row++;
                 continue;
             }
 
-            // Process only chunk_size rows
+            $data_row_index = $current_row - 1;
+            if ($data_row_index < $offset) {
+                $current_row++;
+                continue;
+            }
+
             if ($rows_processed >= $chunk_size) {
                 break;
             }
@@ -1706,15 +1709,18 @@ public function member_subscription($memberid)
                 continue;
             }
 
-            // Extract fields from fixed positions:
-            // 1st column => employeeno
-            // 2nd column => fullname
-            // 3rd column => idnumber
-            // 8th column => amount
-            $employeeno = isset($row[0]) ? trim($row[0]) : '';
-            $fullname   = isset($row[1]) ? trim($row[1]) : '';
-            $idnumber   = isset($row[2]) ? trim($row[2]) : '';
-            $amount     = isset($row[7]) ? trim($row[7]) : '';
+            // Exactly 4 columns: Employee No, Full Name, ID Number, Amount
+            if (count($row) !== 4) {
+                $skipped++;
+                $rows_processed++;
+                $current_row++;
+                continue;
+            }
+
+            $employeeno = trim($row[0]);
+            $fullname   = trim($row[1]);
+            $idnumber   = trim($row[2]);
+            $amount     = trim($row[3]);
 
             // Skip rows with no ID/employee number or invalid amounts
             if (empty($employeeno) && empty($idnumber)) {
@@ -1810,7 +1816,7 @@ public function member_subscription($memberid)
 
         fclose($handle);
 
-        // Check if there are more rows to process
+        // More data rows after this chunk? (exclude header line from count)
         $has_more = false;
         if ($rows_processed >= $chunk_size) {
             $handle = fopen($temp_file, 'r');
@@ -1819,7 +1825,8 @@ public function member_subscription($memberid)
                 $line_count++;
             }
             fclose($handle);
-            $has_more = ($offset + $chunk_size) < $line_count;
+            $data_row_count = max(0, $line_count - 1);
+            $has_more = ($offset + $chunk_size) < $data_row_count;
         }
 
         return $this->output
