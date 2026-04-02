@@ -6,11 +6,11 @@
 		<ul class="nav nav-tabs">
 			<li class="active">
 				<a href="#list" data-toggle="tab"><i class="fa fa-list"></i> 
-					<?php echo get_phrase('all_attendance');?>
+					ALL ATTENDEES
 						</a></li>
 			<li>
 				<a href="#add" data-toggle="tab"><i class="fa fa-plus-circle"></i>
-					<?php echo get_phrase('new_attendee'); ?>
+					ADD ATTENDEE
 						</a></li>
 		</ul>
 		<!---CONTROL TABS END-->
@@ -24,7 +24,6 @@
 				<tr>
                     <th>#</th>
                     <th>National ID</th>
-                    <th>AGM</th>
                     <th>FULLNAME</th>
                     <th>MOMO</th>
                     <th>OTP</th>
@@ -42,10 +41,10 @@
 			<!--CREATION FORM STARTS-->
 			<div class="tab-pane box" id="add" style="padding: 5px">
 				<div class="box-content">
-					<?php echo form_open(base_url() . 'index.php?union/attendance/create' , array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
+					<?php echo form_open(base_url() . 'index.php?union/report_per_event/create' , array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
 					<div class="form-group">
 					<label class="col-md-3 control-label">
-						<?php echo get_phrase('national_id');?>
+						NATIONAL ID
 					</label>
 
 					<div class="col-md-7">
@@ -55,7 +54,7 @@
 
 						<div class="form-group">
 					<label class="col-md-3 control-label">
-						<?php echo get_phrase('fullname');?> <span class="required">*</span>
+						FULLNAME *
 					</label>
 
 					<div class="col-md-7">
@@ -64,7 +63,7 @@
 				</div>
 			        <!-- CELL NUMBER -->
 			        <div class="form-group">
-			            <label class="col-md-3 control-label">Momo</label>
+			            <label class="col-md-3 control-label">MOMO</label>
 			            <div class="col-md-7">
                         <input type="text"
                                class="form-control"
@@ -112,7 +111,10 @@ $(document).ready(function() {
         "pageLength": 500,  
         "ajax": {
             "url": "<?php echo base_url('index.php?union/get_attendance');?>",
-            "type": "POST"
+            "type": "POST",
+            "data": function (d) {
+                d.event_id = <?php echo (int) $event_id; ?>;
+            }
         },
 
         // ADD THIS ↓↓↓

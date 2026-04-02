@@ -1193,16 +1193,30 @@ public function member_subscription($memberid)
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
         $search = $this->input->post("search")['value'];
+        $event_id = intval($this->input->post('event_id'));
+
+        if ($event_id < 1) {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode([
+                    "draw" => $draw,
+                    "recordsTotal" => 0,
+                    "recordsFiltered" => 0,
+                    "data" => []
+                ]));
+        }
 
         // --------------------------------------------
-        // 1️⃣ Total records (no search)
+        // 1️⃣ Total records for this event (no search)
         // --------------------------------------------
-        $recordsTotal = $this->db->count_all("attendance");
+        $this->db->where('event', $event_id);
+        $recordsTotal = $this->db->count_all_results('attendance');
 
         // --------------------------------------------
         // 2️⃣ Build filtered query
         // --------------------------------------------
         $this->db->from("attendance");
+        $this->db->where('event', $event_id);
 
         if (!empty($search)) {
             $this->db->group_start();
@@ -1232,16 +1246,15 @@ public function member_subscription($memberid)
         foreach($query->result() as $r){
             $data[] = [
                 $count++,
-                $r->national_id,
-                $r->event,
-                $r->fullname,
-                $r->momo,
+                $r->$this->db->get_where('members', array('id' => $r->memberid))->row()->national_id,
+                $this->db->get_where('members', array('id' => $r->memberid))->row()->name.' '.$this->db->get_where('members', array('id' => $r->memberid))->row()->surname,
+                $this->db->get_where('members', array('id' => $r->memberid))->row()->cellnumber,
                 $r->otp,
                 ($r->status == 1) ? "Attended" : "Not Attended",
                 '
                 <button 
                     class="btn btn-xs btn-warning resend-otp" 
-                    data-url="' . base_url() . 'index.php?union/send_sms_otp/' . $r->momo . '/' . $r->otp . '">
+                    data-url="' . base_url() . 'index.php?union/send_sms_otp/' . $this->db->get_where('members', array('id' => $r->memberid))->row()->cellnumber . '/' . $r->otp . '">
                     <i class="fa fa-refresh"></i> Resend OTP
                 </button>
                 '
@@ -1365,28 +1378,35 @@ public function member_subscription($memberid)
 
 
     /********** report per event ********************/
-    function report_per_event($eventid="")
+    function report_per_event($param1 = '', $param2 = '', $param3 = '')
     {
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
 
-        $eventid = ($eventid==null) ? $this->input->post('event_id') : $eventid ;
+        if ($param1 == 'create') {
+            $data['memberid'] = $this->input->post('memberid');
+            $data['event'] = $this->input->post('event');
+            $data['otp'] = rand(100000, 999999);
+            $data['status'] = 1;
+            $data['event'] = $param2;
+            //check if user exists
+            $check = $this->db->get_where('attendance', array('memberid' => $data['national_id']))->num_rows();
+            if ($check > 0) {
+                $this->session->set_flashdata('flash_message_error', get_phrase('attendee_already_registered'));
+            } else {
+                $this->db->insert('attendance', $data);
+                $this->session->set_flashdata('flash_message', get_phrase('attendee_added_successfully'));
+                redirect(base_url() . 'index.php?union/report_per_event', 'refresh');
+            }
 
-        $page_data['attendees']    = $this->db->get_where('attendance', array('event' => $eventid))->result_array();
-        $page_data['page_name']  = 'event_details';
-        $page_data['page_title'] = $this->db->get_where('events', array('id' => $eventid))->row()->description.' Details';
+        }
+        $event_id = ($param1 === 'create') ? $param2 : $param1;
+        $page_data['event_id']    = $event_id;
+        $page_data['page_name']  = 'report_per_event';
+        $event_row = $this->db->get_where('events', array('id' => $event_id))->row();
+        $page_data['page_title'] = $event_row ? ($event_row->description . ' Details') : get_phrase('event_details');
         $this->load->view('backend/index', $page_data);
-    }    
-
-    /********** choose meeting for details ********************/
-    function detailed_meetings()
-    {
-        if ($this->session->userdata('user_login') != 1)
-            redirect(base_url(), 'refresh');
-        $page_data['page_name']  = 'detailed_meetings';
-        $page_data['page_title'] = get_phrase('detailed_meetings');
-        $this->load->view('backend/index', $page_data);
-    }  
+    }       
     /********** MANAGE USERS (System Users / Admins) ********************/
     function manage_users($param1 = '', $param2 = '', $param3 = '')
     {
