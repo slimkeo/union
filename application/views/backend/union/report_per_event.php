@@ -41,7 +41,7 @@
 			<!--CREATION FORM STARTS-->
 			<div class="tab-pane box" id="add" style="padding: 5px">
 				<div class="box-content">
-					<?php echo form_open(base_url() . 'index.php?union/report_per_event/create/' . (int) (isset($event_id) ? $event_id : 0) , array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
+					<?php echo form_open(base_url() . 'index.php?union/report_per_event/create' , array('class' => 'form-horizontal form-bordered validate','enctype'=>'multipart/form-data'));?>
 					<div class="form-group">
 					<label class="col-md-3 control-label">
 						NATIONAL ID
@@ -110,11 +110,8 @@ $(document).ready(function() {
         "serverSide": true,
         "pageLength": 500,  
         "ajax": {
-            "url": "<?php echo base_url('index.php?union/get_attendance&event_id=' . (int) (isset($event_id) ? $event_id : 0)); ?>",
-            "type": "POST",
-            "data": function (d) {
-                d.event_id = <?php echo (int) (isset($event_id) ? $event_id : 0); ?>;
-            }
+            "url": "<?php echo base_url('index.php?union/get_attendance');?>",
+            "type": "POST"
         },
 
         // ADD THIS ↓↓↓

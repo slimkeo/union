@@ -712,8 +712,7 @@ public function get_members()
     $draw   = intval($this->input->post("draw"));
     $start  = intval($this->input->post("start"));
     $length = intval($this->input->post("length"));
-    $search_post = $this->input->post('search');
-    $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
+    $search = $this->input->post("search")['value'];
 
     // --------------------------------------------
     // 1️⃣ Total records (no search)
@@ -824,8 +823,7 @@ public function get_member_subscriptions()
     $draw   = intval($this->input->post("draw"));
     $start  = intval($this->input->post("start"));
     $length = intval($this->input->post("length"));
-    $search_post = $this->input->post('search');
-    $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
+    $search = $this->input->post("search")['value'] ?? '';
     $memberid = intval($this->input->post("memberid"));
 
     if (!$memberid) {
@@ -1194,35 +1192,17 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post("draw"));
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
-        $search_post = $this->input->post('search');
-        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
-        $event_id = intval($this->input->post('event_id'));
-        if ($event_id < 1) {
-            $event_id = intval($this->input->get('event_id'));
-        }
-
-        if ($event_id < 1) {
-            return $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode([
-                    "draw" => $draw,
-                    "recordsTotal" => 0,
-                    "recordsFiltered" => 0,
-                    "data" => []
-                ]));
-        }
+        $search = $this->input->post("search")['value'];
 
         // --------------------------------------------
-        // 1️⃣ Total records for this event (no search)
+        // 1️⃣ Total records (no search)
         // --------------------------------------------
-        $this->db->where('event', $event_id);
-        $recordsTotal = $this->db->count_all_results('attendance');
+        $recordsTotal = $this->db->count_all("attendance");
 
         // --------------------------------------------
         // 2️⃣ Build filtered query
         // --------------------------------------------
         $this->db->from("attendance");
-        $this->db->where('event', $event_id);
 
         if (!empty($search)) {
             $this->db->group_start();
@@ -1282,8 +1262,7 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post("draw"));
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
-        $search_post = $this->input->post('search');
-        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
+        $search = $this->input->post("search")['value'];
 
         // --------------------------------------------
         // 1️⃣ Total records (no search)
@@ -1400,19 +1379,16 @@ public function member_subscription($memberid)
             $check = $this->db->get_where('attendance', array('memberid' => $data['national_id']))->num_rows();
             if ($check > 0) {
                 $this->session->set_flashdata('flash_message_error', get_phrase('attendee_already_registered'));
-                redirect(base_url() . 'index.php?union/report_per_event/' . $param2, 'refresh');
             } else {
                 $this->db->insert('attendance', $data);
                 $this->session->set_flashdata('flash_message', get_phrase('attendee_added_successfully'));
-                redirect(base_url() . 'index.php?union/report_per_event/' . $param2, 'refresh');
+                redirect(base_url() . 'index.php?union/report_per_event', 'refresh');
             }
 
         }
-        $event_id = ($param1 === 'create') ? $param2 : $param1;
-        $page_data['event_id']    = (int) $event_id;
+        $page_data['event_id']    = $param1;   
         $page_data['page_name']  = 'report_per_event';
-        $event_row = $this->db->get_where('events', array('id' => $event_id))->row();
-        $page_data['page_title'] = $event_row ? ($event_row->description . ' Details') : get_phrase('event_details');
+        $page_data['page_title'] = $this->db->get_where('events', array('id' => $eventid))->row()->description.' Details';
         $this->load->view('backend/index', $page_data);
     }       
     /********** MANAGE USERS (System Users / Admins) ********************/
@@ -2794,8 +2770,7 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post('draw'));
         $start  = intval($this->input->post('start'));
         $length = intval($this->input->post('length'));
-        $search_post = $this->input->post('search');
-        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
+        $search = $this->input->post('search')['value'] ?? '';
 
         // Base query: only pending applications
         $this->db->from('pending_members');
