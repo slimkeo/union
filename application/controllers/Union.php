@@ -712,7 +712,8 @@ public function get_members()
     $draw   = intval($this->input->post("draw"));
     $start  = intval($this->input->post("start"));
     $length = intval($this->input->post("length"));
-    $search = $this->input->post("search")['value'];
+    $search_post = $this->input->post('search');
+    $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
 
     // --------------------------------------------
     // 1️⃣ Total records (no search)
@@ -823,7 +824,8 @@ public function get_member_subscriptions()
     $draw   = intval($this->input->post("draw"));
     $start  = intval($this->input->post("start"));
     $length = intval($this->input->post("length"));
-    $search = $this->input->post("search")['value'] ?? '';
+    $search_post = $this->input->post('search');
+    $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
     $memberid = intval($this->input->post("memberid"));
 
     if (!$memberid) {
@@ -1192,7 +1194,8 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post("draw"));
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
-        $search = $this->input->post("search")['value'];
+        $search_post = $this->input->post('search');
+        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
         $event_id = intval($this->input->post('event_id'));
 
         if ($event_id < 1) {
@@ -1276,7 +1279,8 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post("draw"));
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
-        $search = $this->input->post("search")['value'];
+        $search_post = $this->input->post('search');
+        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
 
         // --------------------------------------------
         // 1️⃣ Total records (no search)
@@ -2786,7 +2790,8 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post('draw'));
         $start  = intval($this->input->post('start'));
         $length = intval($this->input->post('length'));
-        $search = $this->input->post('search')['value'] ?? '';
+        $search_post = $this->input->post('search');
+        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
 
         // Base query: only pending applications
         $this->db->from('pending_members');
