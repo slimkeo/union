@@ -145,13 +145,7 @@
 							 <i class="fa fa-address-book-o"></i>
 							<span>Subventions Reports</span>
 						</a>
-					</li>	
-					<li class="<?php if ($page_name == 'report_per_event' ||  $page_name == 'manage_attendance') echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
-							 <i class="fa fa-address-book-o"></i>
-							<span>Events Attendance Reports</span>
-						</a>
-					</li>							
+					</li>								
 				</ul>
 			</li>			
 			<?php } ?>
@@ -176,17 +170,10 @@
 			</li>
 
 					<!-- events LIST Addition -->
-			<li class="<?php if ($page_name == 'attendance_reports') echo 'nav-active'; ?> ">
-				<a href="<?php echo base_url(); ?>index.php?union/attendance_reports">
+			<li class="<?php if ($page_name == 'manage_attendance' || $page_name == 'report_per_event') echo 'nav-active'; ?> ">
+				<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
 					<i class="fa fa-bullhorn"></i> 
-					<span><?php echo get_phrase('attendance_reports'); ?></span>
-				</a>
-			</li>
-					<!-- manage Security settings -->
-			<li class="<?php if ($page_name == 'security_settings') echo 'nav-active'; ?> ">
-				<a href="<?php echo base_url(); ?>index.php?union/security_settings">
-					<i class="fa fa-unlock-alt"></i> 
-					<span><?php echo get_phrase('security_settings'); ?></span>
+					<span><?php echo get_phrase('manage_attendance'); ?></span>
 				</a>
 			</li>
 			
@@ -213,14 +200,6 @@
 				<a href="<?php echo base_url(); ?>index.php?union/manage_users">
 					<i class="fa fa-slideshare"></i> 
 					<span><?php echo get_phrase('manage_users'); ?></span>
-				</a>
-			</li>
-
-					<!-- events LIST Addition -->
-			<li class="<?php if ($page_name == 'manage_events') echo 'nav-active'; ?> ">
-				<a href="<?php echo base_url(); ?>index.php?union/manage_events">
-					<i class="fa fa-bullhorn"></i> 
-					<span><?php echo get_phrase('annual_general_events'); ?></span>
 				</a>
 			</li>						<!-- manage System -->
 			<li class="<?php if ($page_name == 'manage_system' ) echo 'nav-active'; ?> ">

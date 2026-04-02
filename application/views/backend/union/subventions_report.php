@@ -140,7 +140,7 @@
                                 <td class="text-right"><?php echo number_format($count); ?></td>
                                 <td class="text-right"><?php echo number_format($amount, 2, '.', ' '); ?></td>
                                 <td class="text-right">
-                                    <?php echo number_format($percentage, 2, '.', ' '); ?>%
+                                    <?php echo number_format($percentage, 2, '.', ' '); ?>
                                 </td>
                                 <td><?php echo $remark; ?></td>
                             </tr>
