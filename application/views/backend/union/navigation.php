@@ -176,7 +176,13 @@
 					<span><?php echo get_phrase('manage_attendance'); ?></span>
 				</a>
 			</li>
-			
+
+			<li class="<?php if ($page_name == 'report_per_event' ||  $page_name == 'manage_attendance') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
+							 <i class="fa fa-address-book-o"></i>
+							<span>Events Attendance Reports</span>
+						</a>
+					</li>			
 			
 			
 				</ul>
