@@ -192,8 +192,7 @@
 			<!-- ADMIN MANAGEMENT PANEL -->
 			<?php if ($this->session->userdata('level') == 1) { ?>						
 			<li class="nav-parent <?php
-			if ($page_name == 'manage_users' ||
-					$page_name == 'manage_events' || $page_name == 'security_settings' || $page_name == 'manage_system' )
+			if ($page_name == 'manage_users' || $page_name == 'security_settings' || $page_name == 'manage_system' )
 				echo 'nav-expanded nav-active';
 			?> ">
 				<a href="#">

@@ -83,6 +83,10 @@
 						<?php 
 						//calculate year or else leave 0
 						$attendance=0;
+						$attendance = $this->db->where('event', $row['id'])
+									                       ->where('status', 1)
+									                       ->from('attendance')
+									                       ->count_all_results();
 						echo $attendance;
 						?>
 					</td>
