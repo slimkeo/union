@@ -106,7 +106,7 @@
 					<li class="<?php if ($page_name == 'sms_communique' ) echo 'nav-active'; ?> ">
 						<a href="<?php echo base_url(); ?>index.php?union/sms_communique">
 							 <i class="fa fa-address-book-o"></i>
-							<span>SMS Communiqua</span>
+							<span>SMS Communique</span>
 						</a>
 					</li>									
 				</ul>
