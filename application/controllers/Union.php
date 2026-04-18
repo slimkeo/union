@@ -1364,29 +1364,12 @@ public function member_subscription($memberid)
 
 
     /********** report per event ********************/
-    function report_per_event($param1 = '', $param2 = '', $param3 = '')
+    function report_per_event()
     {
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
 
-        if ($param1 == 'create') {
-            $data['memberid'] = $this->input->post('memberid');
-            $data['event'] = $this->input->post('event');
-            $data['otp'] = rand(100000, 999999);
-            $data['status'] = 1;
-            $data['event'] = $param2;
-            //check if user exists
-            $check = $this->db->get_where('attendance', array('memberid' => $data['national_id']))->num_rows();
-            if ($check > 0) {
-                $this->session->set_flashdata('flash_message_error', get_phrase('attendee_already_registered'));
-            } else {
-                $this->db->insert('attendance', $data);
-                $this->session->set_flashdata('flash_message', get_phrase('attendee_added_successfully'));
-                redirect(base_url() . 'index.php?union/report_per_event', 'refresh');
-            }
-
-        }
-        $page_data['event_id']    = $param1;   
+        $page_data['event_id'] = $this->input->post('event_id');   
         $page_data['page_name']  = 'report_per_event';
         $page_data['page_title'] = $this->db->get_where('events', array('id' => $param1))->row()->description.' Details';
         $this->load->view('backend/index', $page_data);
