@@ -1371,7 +1371,7 @@ public function member_subscription($memberid)
 
         $page_data['event_id'] = $this->input->post('event_id');   
         $page_data['page_name']  = 'report_per_event';
-        $page_data['page_title'] = $this->db->get_where('events', array('id' => $param1))->row()->description.' Details';
+        $page_data['page_title'] = $this->db->get_where('events', array('id' => $page_data['event_id']))->row()->description.' Details';
         $this->load->view('backend/index', $page_data);
     }       
     /********** MANAGE USERS (System Users / Admins) ********************/
