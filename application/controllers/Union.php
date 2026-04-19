@@ -415,7 +415,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
             $data['fullname']        = $this->input->post('fullname');
             $data['gender']          = $this->input->post('gender');
             $data['dob']             = $this->input->post('dob');
-            $data['status']          = $this->input->post('status');
+            $data['status']          = $this->input->post('status')
             $data['submission_date'] = $this->input->post('submission_date');
             $data['is_spouse']       = (int) $this->input->post('is_spouse');
             $status_date_input       = $this->input->post('status_date');
