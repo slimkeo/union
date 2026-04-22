@@ -1075,7 +1075,7 @@ public function member_subscription($memberid)
         $offset = intval($this->input->post('offset'));
         $limit = intval($this->input->post('limit'));
         $message = $this->input->post('message');
-        $message = urlencode($message);
+        //$message = urlencode($message);
 
         if ($limit <= 0) $limit = 100;
 
@@ -1122,7 +1122,7 @@ public function member_subscription($memberid)
 
         // 5️⃣ Construct API URL
         //$phone="26876404197";
-        $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$message}";
+        $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message=" . urlencode($message);
 
         // 6️⃣ Send SMS using file_get_contents
         $response = file_get_contents($url);
@@ -2176,18 +2176,21 @@ public function member_subscription($memberid)
                                        ->get('invite_sms')
                                        ->row();
                 
-                // Send SMS only if not already sent and if member has a cellnumber
-                if (!$sms_exists && !empty($member->cellnumber)) {                    
+                // Determine which cellnumber to use for SMS
+                $sms_cellnumber = !empty($cellnumber) ? $cellnumber : $member->cellnumber;
+                
+                // Send SMS only if not already sent and if cellnumber exists
+                if (!$sms_exists && !empty($sms_cellnumber)) {                    
                     // Construct SMS message
-                    $updating_message = "Hello VM";
+                    $updating_message = "Valued Member, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($member->cellnumber, $updating_message);
+                    $sms_result = $this->broadcast_message($sms_cellnumber, $updating_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result['success']) {
                         $sms_data = [
                             'memberid'   => $member->id,
-                            'cellnumber' => $member->cellnumber
+                            'cellnumber' => $sms_cellnumber
                         ];
                         $this->db->insert('invite_sms', $sms_data);
                     }
@@ -2228,7 +2231,7 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($cellnumber)) {
                     // Construct SMS message
-                    $sms_message = "Hello Vm";
+                    $sms_message = "Valued Member, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     // Send SMS
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
