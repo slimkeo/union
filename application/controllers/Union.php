@@ -2003,7 +2003,7 @@ public function member_subscription($memberid)
 
         $session_id = $this->input->post('session_id');
         $offset     = intval($this->input->post('offset'));
-        $chunk_size = 500; // rows per batch
+        $chunk_size = 2; // rows per batch
 
         $temp_file = $this->session->userdata('csv_temp_file');
         if (!$temp_file || !file_exists($temp_file)) {
