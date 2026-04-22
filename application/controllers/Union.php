@@ -2177,18 +2177,18 @@ public function member_subscription($memberid)
                                        ->row();
                 
                 // Send SMS only if not already sent and if cellnumber exists
-                if (!$sms_exists && !empty($cellnumber)) {                    
+                if (!$sms_exists && !empty($update_data['cellnumber'])) {                    
                     // Construct SMS message
                     //$sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    $sms_message = "Simple Message updating";
+                    $updating_message = "Simple Message updating";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($cellnumber, $sms_message);
+                    $sms_result = $this->broadcast_message($update_data['cellnumber'], $updating_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result) {
                         $sms_data = [
                             'memberid'   => $member->id,
-                            'cellnumber' => $cellnumber
+                            'cellnumber' => $update_data['cellnumber']
                         ];
                         $this->db->insert('invite_sms', $sms_data);
                     }
@@ -2230,15 +2230,15 @@ public function member_subscription($memberid)
                 if (!$sms_exists && !empty($cellnumber)) {
                     // Construct SMS message
                     //$sms_message = "Valued Member {$name}, your Number is 058 {$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    $sms_message = "Simple Message";
+                    $insert_message = "Simple Message";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($cellnumber, "etf insert");
+                    $sms_result = $this->broadcast_message($insert_data['cellnumber'], $insert_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result) {
                         $sms_data = [
                             'memberid'   => $member_id,
-                            'cellnumber' => $cellnumber
+                            'cellnumber' => $insert_data['cellnumber']
                         ];
                         $this->db->insert('invite_sms', $sms_data);
                     }
