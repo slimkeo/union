@@ -1114,14 +1114,14 @@ public function member_subscription($memberid)
     public function broadcast_message($phone,$message) {
 
         // 2️⃣ Prepare message
-        $message = "testing";
+       // $message = "testing";
 
 
         // 4️⃣ API key
         $api_key = "c25hdGZpbmFuY2VAb3V0bG9vay5jb20tcmVhbHNtcw=="; // Replace with your real API key
 
         // 5️⃣ Construct API URL
-        $phone="26876404197";
+        //$phone="26876404197";
         $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$message}";
 
         // 6️⃣ Send SMS using file_get_contents
@@ -2185,13 +2185,13 @@ public function member_subscription($memberid)
                     }
                     
                     // Construct SMS message
-                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC with their Rep";
                     
                     // Send SMS
                     $sms_result = $this->broadcast_message($phone, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result['success']) {
+                    if ($sms_result) {
                         $sms_data = [
                             'memberid'   => $member->id,
                             'cellnumber' => $cellnumber
@@ -2241,13 +2241,13 @@ public function member_subscription($memberid)
                     }
                     
                     // Construct SMS message
-                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC with their Rep";
                     
                     // Send SMS
                     $sms_result = $this->broadcast_message($phone, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result['success']) {
+                    if ($sms_result) {
                         $sms_data = [
                             'memberid'   => $member_id,
                             'cellnumber' => $cellnumber
