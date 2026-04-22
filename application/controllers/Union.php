@@ -2180,7 +2180,7 @@ public function member_subscription($memberid)
                 if (!$sms_exists && !empty($cellnumber)) {                    
                     // Construct SMS message
                     //$sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    $sms_message = "Simple Message";
+                    $sms_message = "Simple Message updating";
                     // Send SMS
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
