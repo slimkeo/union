@@ -1114,7 +1114,7 @@ public function member_subscription($memberid)
     public function broadcast_message($phone,$message) {
 
         // 2️⃣ Prepare message
-        $message = "testing";
+        //$message = "testing";
 
 
         // 4️⃣ API key
@@ -2179,8 +2179,8 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($cellnumber)) {                    
                     // Construct SMS message
-                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    
+                    //$sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $sms_message = "Simple Message";
                     // Send SMS
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
@@ -2229,8 +2229,8 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($cellnumber)) {
                     // Construct SMS message
-                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    
+                    //$sms_message = "Valued Member {$name}, your Number is 058 {$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $sms_message = "Simple Message";
                     // Send SMS
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
