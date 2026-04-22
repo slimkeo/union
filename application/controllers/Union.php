@@ -2182,7 +2182,7 @@ public function member_subscription($memberid)
                     //$sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     $sms_message = "Simple Message";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($cellnumber, $sms_message);
+                    $sms_result = $this->broadcast_message($cellnumber, "wtf");
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result) {
@@ -2232,7 +2232,7 @@ public function member_subscription($memberid)
                     //$sms_message = "Valued Member {$name}, your Number is 058 {$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     $sms_message = "Simple Message";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($cellnumber, $sms_message);
+                    $sms_result = $this->broadcast_message($cellnumber, "etf insert");
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result) {
