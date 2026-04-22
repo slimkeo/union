@@ -2003,7 +2003,7 @@ public function member_subscription($memberid)
 
         $session_id = $this->input->post('session_id');
         $offset     = intval($this->input->post('offset'));
-        $chunk_size = 2; // rows per batch
+        $chunk_size = 500; // rows per batch
 
         $temp_file = $this->session->userdata('csv_temp_file');
         if (!$temp_file || !file_exists($temp_file)) {
@@ -2185,13 +2185,13 @@ public function member_subscription($memberid)
                     }
                     
                     // Construct SMS message
-                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC with their Rep";
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     
                     // Send SMS
                     $sms_result = $this->broadcast_message($phone, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result) {
+                    if ($sms_result['success']) {
                         $sms_data = [
                             'memberid'   => $member->id,
                             'cellnumber' => $cellnumber
@@ -2241,13 +2241,13 @@ public function member_subscription($memberid)
                     }
                     
                     // Construct SMS message
-                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC with their Rep";
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     
                     // Send SMS
                     $sms_result = $this->broadcast_message($phone, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result) {
+                    if ($sms_result['success']) {
                         $sms_data = [
                             'memberid'   => $member_id,
                             'cellnumber' => $cellnumber
