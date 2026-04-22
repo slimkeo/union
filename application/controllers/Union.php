@@ -2176,19 +2176,18 @@ public function member_subscription($memberid)
                                        ->get('invite_sms')
                                        ->row();
                 
-                // Send SMS only if not already sent and if cellnumber exists
-                if (!$sms_exists && !empty($update_data['cellnumber'])) {                    
+                // Send SMS only if not already sent and if member has a cellnumber
+                if (!$sms_exists && !empty($member->cellnumber)) {                    
                     // Construct SMS message
-                    //$sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    $updating_message = "Simple Message updating";
+                    $updating_message = "Valued Member, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($update_data['cellnumber'], $updating_message);
+                    $sms_result = $this->broadcast_message($member->cellnumber, $updating_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result) {
+                    if ($sms_result['success']) {
                         $sms_data = [
                             'memberid'   => $member->id,
-                            'cellnumber' => $update_data['cellnumber']
+                            'cellnumber' => $member->cellnumber
                         ];
                         $this->db->insert('invite_sms', $sms_data);
                     }
@@ -2229,16 +2228,15 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($cellnumber)) {
                     // Construct SMS message
-                    //$sms_message = "Valued Member {$name}, your Number is 058 {$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
-                    $insert_message = "Simple Message";
+                    $sms_message = "Valued Member, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     // Send SMS
-                    $sms_result = $this->broadcast_message($insert_data['cellnumber'], $insert_message);
+                    $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result) {
+                    if ($sms_result['success']) {
                         $sms_data = [
                             'memberid'   => $member_id,
-                            'cellnumber' => $insert_data['cellnumber']
+                            'cellnumber' => $cellnumber
                         ];
                         $this->db->insert('invite_sms', $sms_data);
                     }
