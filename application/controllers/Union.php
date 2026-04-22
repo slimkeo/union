@@ -2177,18 +2177,12 @@ public function member_subscription($memberid)
                                        ->row();
                 
                 // Send SMS only if not already sent and if cellnumber exists
-                if (!$sms_exists && !empty($cellnumber)) {
-                    // Format cellnumber to ensure it has proper country code
-                    $phone = $cellnumber;
-                    if (strpos($phone, '+') === false && strpos($phone, '268') === false) {
-                        $phone = '268' . ltrim($phone, '0');
-                    }
-                    
+                if (!$sms_exists && !empty($cellnumber)) {                    
                     // Construct SMS message
                     $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     
                     // Send SMS
-                    $sms_result = $this->broadcast_message($phone, $sms_message);
+                    $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result['success']) {
@@ -2234,17 +2228,11 @@ public function member_subscription($memberid)
                 
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($cellnumber)) {
-                    // Format cellnumber to ensure it has proper country code
-                    $phone = $cellnumber;
-                    if (strpos($phone, '+') === false && strpos($phone, '268') === false) {
-                        $phone = '268' . ltrim($phone, '0');
-                    }
-                    
                     // Construct SMS message
                     $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     
                     // Send SMS
-                    $sms_result = $this->broadcast_message($phone, $sms_message);
+                    $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
                     if ($sms_result['success']) {
