@@ -1114,14 +1114,14 @@ public function member_subscription($memberid)
     public function broadcast_message($phone,$message) {
 
         // 2️⃣ Prepare message
-        /*$message = "SNAT union AGM TEST (internal staff and board members only). Date: 05 Dec 2025, 10:00 AM. Venue: Metropolitan Evangelical Church. Your code: $otp. Present this at registration.";*/
+        $message = "testing";
 
 
         // 4️⃣ API key
         $api_key = "c25hdGZpbmFuY2VAb3V0bG9vay5jb20tcmVhbHNtcw=="; // Replace with your real API key
 
         // 5️⃣ Construct API URL
-        //$phone="26876404197";
+        $phone="26876404197";
         $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$message}";
 
         // 6️⃣ Send SMS using file_get_contents
@@ -2170,6 +2170,36 @@ public function member_subscription($memberid)
                     'timestamp'         => $now
                 ];
                 $this->db->where('id', $member->id)->update('members', $update_data);
+                
+                // Check if SMS has already been sent for this member
+                $sms_exists = $this->db->where('memberid', $member->id)
+                                       ->get('invite_sms')
+                                       ->row();
+                
+                // Send SMS only if not already sent and if cellnumber exists
+                if (!$sms_exists && !empty($cellnumber)) {
+                    // Format cellnumber to ensure it has proper country code
+                    $phone = $cellnumber;
+                    if (strpos($phone, '+') === false && strpos($phone, '268') === false) {
+                        $phone = '268' . ltrim($phone, '0');
+                    }
+                    
+                    // Construct SMS message
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    
+                    // Send SMS
+                    $sms_result = $this->broadcast_message($phone, $sms_message);
+                    
+                    // If SMS sent successfully, record it in invite_sms table
+                    if ($sms_result['success']) {
+                        $sms_data = [
+                            'memberid'   => $member->id,
+                            'cellnumber' => $cellnumber
+                        ];
+                        $this->db->insert('invite_sms', $sms_data);
+                    }
+                }
+                
                 $updated++;
             } else {
                 // Insert new
@@ -2195,6 +2225,37 @@ public function member_subscription($memberid)
                     'login_attempts'    => 0
                 ];
                 $this->db->insert('members', $insert_data);
+                $member_id = $this->db->insert_id();
+                
+                // Check if SMS has already been sent for this member
+                $sms_exists = $this->db->where('memberid', $member_id)
+                                       ->get('invite_sms')
+                                       ->row();
+                
+                // Send SMS only if not already sent and if cellnumber exists
+                if (!$sms_exists && !empty($cellnumber)) {
+                    // Format cellnumber to ensure it has proper country code
+                    $phone = $cellnumber;
+                    if (strpos($phone, '+') === false && strpos($phone, '268') === false) {
+                        $phone = '268' . ltrim($phone, '0');
+                    }
+                    
+                    // Construct SMS message
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    
+                    // Send SMS
+                    $sms_result = $this->broadcast_message($phone, $sms_message);
+                    
+                    // If SMS sent successfully, record it in invite_sms table
+                    if ($sms_result['success']) {
+                        $sms_data = [
+                            'memberid'   => $member_id,
+                            'cellnumber' => $cellnumber
+                        ];
+                        $this->db->insert('invite_sms', $sms_data);
+                    }
+                }
+                
                 $inserted++;
             }
 
