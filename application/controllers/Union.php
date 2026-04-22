@@ -2179,7 +2179,7 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if member has a cellnumber
                 if (!$sms_exists && !empty($member->cellnumber)) {                    
                     // Construct SMS message
-                    $updating_message = "";
+                    $updating_message = "Hello VM";
                     // Send SMS
                     $sms_result = $this->broadcast_message($member->cellnumber, $updating_message);
                     
@@ -2228,7 +2228,7 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($cellnumber)) {
                     // Construct SMS message
-                    $sms_message = "";
+                    $sms_message = "Hello Vm";
                     // Send SMS
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
