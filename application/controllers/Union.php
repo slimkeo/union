@@ -2185,7 +2185,7 @@ public function member_subscription($memberid)
                     }
                     
                     // Construct SMS message
-                    $sms_message = "Valued Member, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     
                     // Send SMS
                     $sms_result = $this->broadcast_message($phone, $sms_message);
@@ -2241,7 +2241,7 @@ public function member_subscription($memberid)
                     }
                     
                     // Construct SMS message
-                    $sms_message = "Valued Member, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $sms_message = "Valued Member {$name}, your Number is 058-{$member_id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
                     
                     // Send SMS
                     $sms_result = $this->broadcast_message($phone, $sms_message);
