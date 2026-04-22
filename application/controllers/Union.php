@@ -2185,7 +2185,7 @@ public function member_subscription($memberid)
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result['success']) {
+                    if ($sms_result) {
                         $sms_data = [
                             'memberid'   => $member->id,
                             'cellnumber' => $cellnumber
@@ -2235,7 +2235,7 @@ public function member_subscription($memberid)
                     $sms_result = $this->broadcast_message($cellnumber, $sms_message);
                     
                     // If SMS sent successfully, record it in invite_sms table
-                    if ($sms_result['success']) {
+                    if ($sms_result) {
                         $sms_data = [
                             'memberid'   => $member_id,
                             'cellnumber' => $cellnumber
