@@ -1121,7 +1121,7 @@ public function member_subscription($memberid)
         $api_key = "c25hdGZpbmFuY2VAb3V0bG9vay5jb20tcmVhbHNtcw=="; // Replace with your real API key
 
         // 5️⃣ Construct API URL
-        $phone="26876404197";
+        //$phone="26876404197";
         $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$message}";
 
         // 6️⃣ Send SMS using file_get_contents
