@@ -6,7 +6,7 @@ $location = $event->location;
 $date = $event->date;
 
 // default message
-$message = $event_name . " : " . $date . " " . $time . ", " . $location . ". Members: Payslip/receipt and ID";
+$message =$event_name . " : " . $date . " " . $time . ", " . $location . ". SNAT UNION Members: Payslip/receipt and ID";
 ?>
 
 <div class="row">
