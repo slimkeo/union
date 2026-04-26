@@ -26,8 +26,8 @@ $message =$event_name . " : " . $date . " " . $time . ", " . $location . ". SNAT
             <div class="panel-body">
 
                 <div class="form-group">
-                    <label>SMS Message</label>
-                    <textarea id="smsMessage" class="form-control" rows="4"><?php echo $message. " OTP: 36912(example)"; ?></textarea>
+                    <label>SMS Message (OTP WILL BE ADDED AT THE END OF THE MESSAGE AUTOMATICALLY)</label>
+                    <textarea id="smsMessage" class="form-control" rows="4"><?php echo $message; ?></textarea>
                 </div>
 
                 <button class="btn btn-primary btn-lg" id="btnInviteAll">
@@ -71,90 +71,75 @@ $(document).ready(function() {
 
     $("#btnInviteAll").click(function() {
 
-        // get message
-        const message = "<?php echo $message ?>";
-        const event_id = "<?php echo $event_id ?>";
+    const message = $("#smsMessage").val();
+    const event_id = <?php echo json_encode($event_id); ?>;
 
-        if (!message.trim()) {
-            alert("Please enter a message.");
-            return;
-        }
+    if (!message.trim()) {
+        alert("Please enter a message.");
+        return;
+    }
 
-        // hide form, show progress
-        $("#inviteForm").hide();
-        $("#inviteProgressSection").show();
+    $("#inviteForm").hide();
+    $("#inviteProgressSection").show();
 
-        startRealSending(message,event_id);
+    startRealSending(message, event_id);
     });
 
-    function startRealSending(message) {
+    function startRealSending(message, event_id) {
 
-        $("#inviteLog").html("");
-        $("#inviteProgress").css("width", "0%").text("0%");
-        $("#doneBtn").hide();
+    let offset = 0;
+    const batchSize = 200;
 
-        const batchSize = 200;
-        let offset = 0;
+    $.ajax({
+        url: "<?php echo base_url('index.php?union/invite_batch_init'); ?>",
+        method: "POST",
+        dataType: "json",
+        data: {
+            event_id: event_id // optional if needed in init
+        },
+        success: function(initRes) {
 
-        $.ajax({
-            url: "<?php echo base_url('index.php?union/invite_batch_init'); ?>",
-            method: "POST",
-            dataType: "json",
-            success: function(initRes) {
+            const total = parseInt(initRes.total, 10);
 
-                if (!initRes || !initRes.total) {
-                    $("#inviteLog").append("<div class='text-danger'>Failed to get total members.</div>");
-                    return;
-                }
+            function processNextBatch() {
 
-                const total = parseInt(initRes.total, 10);
-                $("#inviteLog").append("Total members: " + total + "<br>");
+                $.ajax({
+                    url: "<?php echo base_url('index.php?union/invite_batch'); ?>",
+                    method: "POST",
+                    dataType: "json",
+                    data: {
+                        offset: offset,
+                        limit: batchSize,
+                        message: message,
+                        event_id: event_id // ✅ SEND IT HERE
+                    },
+                    success: function(res) {
 
-                function processNextBatch() {
+                        const processed = res.processed || 0;
+                        offset += processed;
 
-                    $.ajax({
-                        url: "<?php echo base_url('index.php?union/invite_batch'); ?>",
-                        method: "POST",
-                        dataType: "json",
-                        data: {
-                            offset: offset,
-                            limit: batchSize,
-                            event_id: event_id,
-                            message: message // send message to backend
-                        },
-                        success: function(res) {
+                        if (res.logs) {
+                            res.logs.forEach(function(line) {
+                                $("#inviteLog").append(line + "<br>");
+                            });
+                        }
 
-                            const processed = res.processed || 0;
-                            offset += processed;
+                        const percent = Math.round((offset / total) * 100);
+                        $("#inviteProgress").css("width", percent + "%").text(percent + "%");
 
-                            if (res.logs) {
-                                res.logs.forEach(function(line) {
-                                    $("#inviteLog").append(line + "<br>");
-                                });
-                            }
-
-                            const percent = Math.round((offset / total) * 100);
-                            $("#inviteProgress").css("width", percent + "%").text(percent + "%");
-
-                            $("#inviteLog").scrollTop($("#inviteLog")[0].scrollHeight);
-
-                            if (offset < total) {
-                                setTimeout(processNextBatch, 200);
-                            } else {
-                                $("#inviteLog").append("<b>All invitations sent. Total: " + res.total_success + "</b><br>");
-                                $("#doneBtn").show();
-                            }
-                        },
-                        error: function() {
-                            $("#inviteLog").append("<div class='text-danger'>Batch failed.</div>");
+                        if (offset < total) {
+                            setTimeout(processNextBatch, 200);
+                        } else {
+                            $("#inviteLog").append("<b>Done. Total sent: " + res.total_success + "</b><br>");
                             $("#doneBtn").show();
                         }
-                    });
-                }
-
-                processNextBatch();
+                    }
+                });
             }
-        });
+
+            processNextBatch();
+        }
+    });
     }
 
     // optional: reset UI

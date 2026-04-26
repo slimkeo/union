@@ -960,8 +960,8 @@ public function member_subscription($memberid)
     
         $offset = intval($this->input->post('offset'));
         $limit  = intval($this->input->post('limit'));
-        $event_id = $this->input->post('event_id'); // ✅ GET MESSAGE
-        $message_template = $this->input->post('message'); // ✅ GET MESSAGE
+        $message_template = $this->input->post('message');
+        $event_id = intval($this->input->post('event_id')); // ✅ RECEIVED
     
         if ($limit <= 0) $limit = 100;
     
