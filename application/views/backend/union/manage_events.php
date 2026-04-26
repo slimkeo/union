@@ -39,6 +39,16 @@
 					</th>
 					<th>
 						<div>
+							<?php echo get_phrase('time');?>
+						</div>
+					</th>
+					<th>
+						<div>
+							<?php echo get_phrase('location');?>
+						</div>
+					</th>
+					<th>
+						<div>
 							<?php echo get_phrase('year');?>
 						</div>
 					</th>
@@ -77,6 +87,12 @@
 						<?php echo $row['date'];?>
 					</td>
 					<td>
+						<?php echo $row['time'];?>
+					</td>
+					<td>
+						<?php echo $row['location'];?>
+					</td>
+					<td>
 						<?php echo $row['year'];?>
 					</td>
 					<td>
@@ -97,11 +113,15 @@
 
 						<!-- VIEW CLIENT DETAILS LINK -->
 						<a href="<?php echo base_url(); ?>index.php?union/report_per_event/<?php echo $row['id'];?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="tooltip" 
-						data-original-title="<?php echo get_phrase('view_event');?>" target="_blank">
+						data-original-title="<?php echo get_phrase('view_event');?>" >
                         <i class="fa fa-eye"></i>
                         </a>
 
-
+						<!-- VIEW CLIENT DETAILS LINK -->
+						<a href="<?php echo base_url(); ?>index.php?union/event_invite/<?php echo $row['id'];?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="tooltip" 
+						data-original-title="INVITE MEMBERS">
+                        <i class="fa fa-users"></i>
+                        </a>
 						<!-- CLIENT EDITING LINK -->
 
 						<a href="#" class="btn btn-xs btn-success" data-placement="top" data-toggle="tooltip" 

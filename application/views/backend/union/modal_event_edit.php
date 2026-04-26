@@ -33,6 +33,22 @@ foreach ( $edit_data as $row ):
             <div class="col-md-7">
               <input type="text" class="form-control" required name="date" value="<?php echo $row['date'];?>"/>
             </div>
+          </div> 
+          <div class="form-group">
+            <label class="col-md-3 control-label">
+              <?php echo get_phrase('time');?>
+            </label>
+            <div class="col-md-7">
+              <input type="text" class="form-control" required name="time" value="<?php echo $row['time'];?>"/>
+            </div>
+          </div> 
+          <div class="form-group">
+            <label class="col-md-3 control-label">
+              <?php echo get_phrase('location');?>
+            </label>
+            <div class="col-md-7">
+              <input type="text" class="form-control" required name="location" value="<?php echo $row['location'];?>"/>
+            </div>
           </div>  
           <div class="form-group">
             <label class="col-md-3 control-label">

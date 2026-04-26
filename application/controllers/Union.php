@@ -956,60 +956,56 @@ public function member_subscription($memberid)
     }
     public function invite_batch()
     {
-        // prevent PHP timeout for this single request (but keep small batch)
         set_time_limit(60);
-
+    
         $offset = intval($this->input->post('offset'));
-        $limit = intval($this->input->post('limit'));
-
+        $limit  = intval($this->input->post('limit'));
+        $event_id = $this->input->post('event_id'); // ✅ GET MESSAGE
+        $message_template = $this->input->post('message'); // ✅ GET MESSAGE
+    
         if ($limit <= 0) $limit = 100;
-
-        // fetch batch of members
+    
         $members = $this->Member_model->get_members_batch($offset, $limit);
-
+    
         $logs = [];
         $success_count = 0;
-
+    
         foreach ($members as $m) {
-            // generate (unique-ish) OTP code — 6 digits to avoid collisions
+    
             $otp = $this->generate_unique_otp();
-
-            // prepare attendance record
+    
             $att = [
-                'national_id' => $m['idnumber'],
-                'agm' => 1,
-                'fullname' => trim($m['surname'] . ' ' . $m['name']),
-                'momo' =>  $m['cellnumber'],
+                'memberid' => $m['id'],
+                'event' => $event_id,
                 'otp' => $otp,
                 'createdate' => date('Y-m-d H:i:s'),
                 'attended_at' => null
             ];
-
-            // insert into attendance table (ignore duplicates if member already invited)
+    
             $insert_id = $this->Attendance_model->insert_if_not_exists($att);
-
+    
             if ($insert_id) {
-                // send SMS
-                $sms_ok = $this->send_sms_otp($m['cellnumber'], $otp, $att);
-
-                if ($sms_ok) {
-                    $logs[] = "SMS sent to {$m['cellnumber']} (code: {$otp})";
+    
+                // ✅ Inject OTP into message
+                $final_message = $message_template . " OTP: " . $otp;
+    
+                $sms_res = $this->send_sms_otp($m['cellnumber'], $final_message);
+    
+                if ($sms_res['success']) {
+                    $logs[] = "SMS sent to {$m['cellnumber']}";
                     $success_count++;
                 } else {
-                    $logs[] = "SMS FAILED for {$m['cellnumber']} (code: {$otp})";
-                    // you may update attendance row with failed flag if desired
+                    $logs[] = "FAILED {$m['cellnumber']} - " . $sms_res['error'];
                 }
+    
             } else {
-                $logs[] = "Member / Number already exists, skipping....";
+                $logs[] = "Skipped {$m['cellnumber']} (already exists)";
             }
         }
-
-        // compute processed count for client progress
+    
         $processed = count($members);
-
-        // total_success - useful at finish
-        $total_success = $this->Attendance_model->count_sent(); // implement below
-
+        $total_success = $this->Attendance_model->count_sent();
+    
         return $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode([
@@ -1019,7 +1015,6 @@ public function member_subscription($memberid)
                 'total_success' => $total_success
             ]));
     }
-
     /**
      * Generate unique 6-digit OTP.
      * Tries a few times to avoid DB collisions. Good enough for 15k.
@@ -1041,32 +1036,32 @@ public function member_subscription($memberid)
      * Returns boolean.
      */
 
-    public function send_sms_otp($phone,$otp, $attendance_row = null) {
-
-        // 2️⃣ Prepare message
-        //$message = "SNAT union AGM: 13 Dec 2025, 07:00 AM, Metropolitan Evangelical Church. OTP:$otp Members: Passbook, ID & payslip. Pensioners: ID, Passbook & proof.";
-
-
-        // 3️⃣ URL encode message
-        $encoded_message = urlencode($message);
-
-        // 4️⃣ API key
-        //$api_key = "c25hdGJ1cmlhbEBzd2F6aS5uZXQtcmVhbHNtcw=="; // Replace with your real API key
-
-        // 5️⃣ Construct API URL
-        //$phone="26876404197";
-        $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$encoded_message}";
-
-        // 6️⃣ Send SMS using file_get_contents
-        $response = file_get_contents($url);
-
-        if ($response !== FALSE) {
-            // Optional: you can parse response if RealSMS returns JSON/text
-            return ['success' => true, 'message' => "SMS sent to {$phone}", 'api_response' => $response];
-        } else {
-            return ['success' => false, 'error' => "Failed to send SMS", 'api_response' => $response];
-        }
-    }
+     public function send_sms_otp($phone, $message)
+     {
+         $api_key = "c25hdGZpbmFuY2VAb3V0bG9vay5jb20tcmVhbHNtcw==";
+     
+         // clean phone (optional but recommended)
+         $phone = preg_replace('/[^0-9]/', '', $phone);
+     
+         // encode message
+         $encoded_message = urlencode($message);
+     
+         $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$encoded_message}";
+     
+         $response = @file_get_contents($url);
+     
+         if ($response !== FALSE) {
+             return [
+                 'success' => true,
+                 'api_response' => $response
+             ];
+         } else {
+             return [
+                 'success' => false,
+                 'error' => "SMS API request failed"
+             ];
+         }
+     }
     public function send_broadcast()
     {
         // prevent PHP timeout for this single request (but keep small batch)
@@ -1329,6 +1324,8 @@ public function member_subscription($memberid)
         if ($param1 == 'create') {
             $data['description'] = $this->input->post('description');
             $data['date']        =date('Y-m-d', strtotime($this->input->post('date')));
+            $data['time']        =$this->input->post('time');
+            $data['location']        =$this->input->post('location');
             $data['year']        = $this->input->post('year');
             $data['createdate']  = date("Y-m-d");
             $data['user']     = $this->session->userdata('user_id');
@@ -1342,6 +1339,8 @@ public function member_subscription($memberid)
             $data['description'] = $this->input->post('description');
             $data['date']        = $this->input->post('date');
             $data['year']        = $this->input->post('year');
+            $data['time']        =$this->input->post('time');
+            $data['location']        =$this->input->post('location');
 
             $this->db->where('id', $param2);
             $this->db->update('events', $data);
@@ -1361,7 +1360,17 @@ public function member_subscription($memberid)
         $page_data['page_title'] = get_phrase('manage_events');
         $this->load->view('backend/index', $page_data);
     }
+    /********** batch invite per event ********************/
+    function event_invite($event_id)
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url(), 'refresh');
 
+        $page_data['event_id'] = $event_id;   
+        $page_data['page_name']  = 'event_invite';
+        $page_data['page_title'] = $this->db->get_where('events', array('id' => $page_data['event_id']))->row()->description.' Invite';
+        $this->load->view('backend/index', $page_data);
+    }  
 
     /********** report per event ********************/
     function report_per_event()
