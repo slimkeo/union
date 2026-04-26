@@ -16,7 +16,7 @@ $message =$event_name . " : " . $date . " " . $time . ", " . $location . ". SNAT
         <div class="panel">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <i class="fa fa-users"></i> Member SMS Invitations
+                    <i class="fa fa-users"></i> <?php echo $event_name; ?> SMS Invitations
                 </h3>
             </div>
         </div>
