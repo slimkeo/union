@@ -84,7 +84,7 @@ $(document).ready(function() {
         $("#inviteForm").hide();
         $("#inviteProgressSection").show();
 
-        startRealSending(message);
+        startRealSending(message,event_id);
     });
 
     function startRealSending(message) {
