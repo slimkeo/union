@@ -1071,7 +1071,7 @@ public function member_subscription($memberid)
          $phone = preg_replace('/[^0-9]/', '', $phone);
      
          // encode message
-         $message="This is a recent OTP "
+         $message="This is a recent OTP: ". $otp;
          $encoded_message = urlencode($message);
      
          $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$encoded_message}";
