@@ -1062,6 +1062,35 @@ public function member_subscription($memberid)
              ];
          }
      }
+
+     public function resend_sms_otp($phone, $otp)
+     {
+         $api_key = "c25hdGZpbmFuY2VAb3V0bG9vay5jb20tcmVhbHNtcw==";
+     
+         // clean phone (optional but recommended)
+         $phone = preg_replace('/[^0-9]/', '', $phone);
+     
+         // encode message
+         $message="This is a recent OTP "
+         $encoded_message = urlencode($message);
+     
+         $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$encoded_message}";
+     
+         $response = @file_get_contents($url);
+     
+         if ($response !== FALSE) {
+             return [
+                 'success' => true,
+                 'api_response' => $response
+             ];
+         } else {
+             return [
+                 'success' => false,
+                 'error' => "SMS API request failed"
+             ];
+         }
+     }
+    
     public function send_broadcast()
     {
         // prevent PHP timeout for this single request (but keep small batch)
@@ -1188,11 +1217,18 @@ public function member_subscription($memberid)
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
         $search = $this->input->post("search")['value'];
+        $event_id = intval($this->input->post('event_id')); // ✅ RECEIVED
     
         // --------------------------------------------
         // 1️⃣ Total records
         // --------------------------------------------
-        $recordsTotal = $this->db->count_all("attendance");
+        $this->db->from("attendance");
+
+        if (!empty($event_id)) {
+            $this->db->where("event", $event_id);
+        }
+        
+        $recordsTotal = $this->db->count_all_results();
     
         // --------------------------------------------
         // 2️⃣ Build query with JOIN
@@ -1200,7 +1236,12 @@ public function member_subscription($memberid)
         $this->db->select('attendance.*, members.idnumber, members.name, members.surname, members.cellnumber');
         $this->db->from("attendance");
         $this->db->join("members", "members.id = attendance.memberid", "left");
-    
+
+                // ✅ FILTER BY EVENT
+        if (!empty($event_id)) {
+            $this->db->where("attendance.event", $event_id);
+        }
+            
         if (!empty($search)) {
             $this->db->group_start();
             $this->db->like("members.idnumber", $search);
@@ -1241,7 +1282,7 @@ public function member_subscription($memberid)
                 '
                 <button 
                     class="btn btn-xs btn-warning resend-otp" 
-                    data-url="' . base_url() . 'index.php?union/send_sms_otp/' . $r->cellnumber . '/' . $r->otp . '">
+                    data-url="' . base_url() . 'index.php?union/resend_sms_otp/' . $r->cellnumber . '/' . $r->otp . '">
                     <i class="fa fa-refresh"></i> Resend OTP
                 </button>
                 '

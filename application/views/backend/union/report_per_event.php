@@ -105,16 +105,23 @@
 <script>
 $(document).ready(function() {
 
+    var event_id = "<?php echo $event_id; ?>"; // OR get from dropdown/input
+
     $('#datatable-tabletools12').DataTable({
         "processing": true,
         "serverSide": true,
         "pageLength": 500,  
+
         "ajax": {
             "url": "<?php echo base_url('index.php?union/get_attendance');?>",
-            "type": "POST"
+            "type": "POST",
+
+            // ✅ SEND EXTRA PARAMETER
+            "data": function(d) {
+                d.event_id = event_id;
+            }
         },
 
-        // ADD THIS ↓↓↓
         dom: 'Bfrtip',
         buttons: [
             { extend: 'copy',  text: 'Copy' },
@@ -125,7 +132,6 @@ $(document).ready(function() {
     });
 
 });
-</script>
 <script>
 document.querySelector("form").addEventListener("submit", function(e) {
     var momo = document.querySelector("input[name='momo']").value.trim();
