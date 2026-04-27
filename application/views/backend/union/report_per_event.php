@@ -138,6 +138,7 @@ $(document).ready(function() {
     });
 
 });
+</script>
 <script>
 document.querySelector("form").addEventListener("submit", function(e) {
     var momo = document.querySelector("input[name='momo']").value.trim();
