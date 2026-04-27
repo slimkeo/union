@@ -1188,60 +1188,66 @@ public function member_subscription($memberid)
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
         $search = $this->input->post("search")['value'];
-
+    
         // --------------------------------------------
-        // 1️⃣ Total records (no search)
+        // 1️⃣ Total records
         // --------------------------------------------
         $recordsTotal = $this->db->count_all("attendance");
-
+    
         // --------------------------------------------
-        // 2️⃣ Build filtered query
+        // 2️⃣ Build query with JOIN
         // --------------------------------------------
+        $this->db->select('attendance.*, members.idnumber, members.name, members.surname, members.cellnumber');
         $this->db->from("attendance");
-
+        $this->db->join("members", "members.id = attendance.memberid", "left");
+    
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->or_like("national_id", $search);
-            $this->db->or_like("otp", $search);
-            $this->db->or_like("fullname", $search);
-            $this->db->or_like("momo", $search);
+            $this->db->like("members.idnumber", $search);
+            $this->db->or_like("attendance.otp", $search);
+            $this->db->or_like("members.name", $search);
+            $this->db->or_like("members.surname", $search);
+            $this->db->or_like("members.cellnumber", $search);
             $this->db->group_end();
         }
-
+    
         // --------------------------------------------
-        // 3️⃣ Count filtered records
+        // 3️⃣ Filtered count
         // --------------------------------------------
         $recordsFiltered = $this->db->count_all_results('', false);
-
+    
         // --------------------------------------------
         // 4️⃣ Pagination
         // --------------------------------------------
         $this->db->limit($length, $start);
-
+    
         // --------------------------------------------
-        // 5️⃣ Fetch results
+        // 5️⃣ Fetch data
         // --------------------------------------------
         $query = $this->db->get();
-        $count=1;
+    
+        $count = $start + 1;
         $data = [];
-        foreach($query->result() as $r){
+    
+        foreach ($query->result() as $r) {
+    
             $data[] = [
                 $count++,
-                $r->$this->db->get_where('members', array('id' => $r->memberid))->row()->national_id,
-                $this->db->get_where('members', array('id' => $r->memberid))->row()->name.' '.$this->db->get_where('members', array('id' => $r->memberid))->row()->surname,
-                $this->db->get_where('members', array('id' => $r->memberid))->row()->cellnumber,
+                $r->idnumber,
+                $r->name . ' ' . $r->surname,
+                $r->cellnumber,
                 $r->otp,
                 ($r->status == 1) ? "Attended" : "Not Attended",
                 '
                 <button 
                     class="btn btn-xs btn-warning resend-otp" 
-                    data-url="' . base_url() . 'index.php?union/send_sms_otp/' . $this->db->get_where('members', array('id' => $r->memberid))->row()->cellnumber . '/' . $r->otp . '">
+                    data-url="' . base_url() . 'index.php?union/send_sms_otp/' . $r->cellnumber . '/' . $r->otp . '">
                     <i class="fa fa-refresh"></i> Resend OTP
                 </button>
                 '
             ];
         }
-
+    
         return $this->output
             ->set_content_type('application/json')
             ->set_output(json_encode([
