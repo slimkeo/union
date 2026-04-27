@@ -125,8 +125,8 @@
 						<!-- MOMO PAYMENT  -->
 
 						<a href="<?php echo base_url(); ?>index.php?union/pay_with_momo/<?php echo $row['id'];?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="tooltip" 
-						data-original-title="<?php echo get_phrase('view_event');?>" >
-                        <i class="fa fa-eye"></i>
+						data-original-title="<?php echo get_phrase('pay_with_momo');?>" >
+                        <i class="fa fa-dollar"></i>
                         </a>
 
 
