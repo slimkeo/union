@@ -153,7 +153,7 @@
 			<?php if ($this->session->userdata('level') == 1) { ?>						
 			<li class="nav-parent <?php
 			if ($page_name == 'manage_users' ||
-					$page_name == 'manage_events' || $page_name == 'security_settings' || $page_name == 'manage_system' )
+					$page_name == 'manage_events' || $page_name == 'pay_with_momo' || $page_name == 'event_invite' )
 				echo 'nav-expanded nav-active';
 			?> ">
 				<a href="#">
@@ -162,27 +162,12 @@
 				</a>
 				<ul class="nav nav-children">
 					<!-- \Manage USers -->
-			<li class="<?php if ($page_name == 'manage_events') echo 'nav-active'; ?> ">
+			<li class="<?php if ($page_name == 'manage_events' || $page_name == 'pay_with_momo' || $page_name == 'event_invite') echo 'nav-active'; ?> ">
 				<a href="<?php echo base_url(); ?>index.php?union/manage_events">
 					<i class="fa fa-slideshare"></i> 
 					<span><?php echo get_phrase('manage_events'); ?></span>
 				</a>
-			</li>
-
-					<!-- events LIST Addition -->
-			<li class="<?php if ($page_name == 'manage_attendance' || $page_name == 'report_per_event') echo 'nav-active'; ?> ">
-				<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
-					<i class="fa fa-bullhorn"></i> 
-					<span><?php echo get_phrase('manage_attendance'); ?></span>
-				</a>
-			</li>
-
-			<li class="<?php if ($page_name == 'report_per_event' ||  $page_name == 'manage_attendance') echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/manage_attendance">
-							 <i class="fa fa-address-book-o"></i>
-							<span>Events Attendance Reports</span>
-						</a>
-					</li>			
+			</li>		
 			
 			
 				</ul>
