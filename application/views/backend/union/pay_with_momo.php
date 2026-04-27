@@ -54,7 +54,7 @@ $(document).ready(function() {
         "serverSide": true,
         "pageLength": 2000,
         "ajax": {
-            "url": "<?php echo base_url('index.php?union/get_attendance');?>",
+            "url": "<?php echo base_url('index.php?union/get_attended');?>",
             "type": "POST",
 
             // ✅ SEND EXTRA PARAMETER
