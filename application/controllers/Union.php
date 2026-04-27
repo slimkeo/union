@@ -1420,14 +1420,14 @@ public function member_subscription($memberid)
     }  
 
     /********** report per event ********************/
-    function report_per_event()
+    function report_per_event($event_id)
     {
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
 
-        $page_data['event_id'] = $this->input->post('event_id');   
+        $page_data['event_id'] = $event_id;   
         $page_data['page_name']  = 'report_per_event';
-        $page_data['page_title'] = ' Details';
+        $page_data['page_title'] =  $this->db->get_where('events', array('id' => $page_data['event_id']))->row()->description.' Attandence';
         $this->load->view('backend/index', $page_data);
     }       
     /********** MANAGE USERS (System Users / Admins) ********************/
