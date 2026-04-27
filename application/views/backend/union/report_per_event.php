@@ -1,3 +1,9 @@
+<?php 
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+?>
 <div class="row">
 	<div class="col-md-12">
 
@@ -170,3 +176,4 @@ $(document).on('click', '.resend-otp', function (e) {
     });
 });
 </script>
+
