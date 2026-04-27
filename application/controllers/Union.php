@@ -1071,7 +1071,7 @@ public function member_subscription($memberid)
          $phone = preg_replace('/[^0-9]/', '', $phone);
      
          // encode message
-         $message="This is a recent OTP: ". $otp;
+         $message="This is a resent OTP: ". $otp;
          $encoded_message = urlencode($message);
      
          $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message={$encoded_message}";
@@ -1305,28 +1305,43 @@ public function member_subscription($memberid)
         $start  = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
         $search = $this->input->post("search")['value'];
+        $event_id = intval($this->input->post('event_id')); // ✅ RECEIVED
 
         // --------------------------------------------
         // 1️⃣ Total records (no search)
         // --------------------------------------------
         $this->db->where("status", 1);
-        $recordsTotal = $this->db->count_all("attendance");
-
-        // --------------------------------------------
-        // 2️⃣ Build filtered query
-        // --------------------------------------------
         $this->db->from("attendance");
-         $this->db->where("status", 1);
 
+        if (!empty($event_id)) {
+            $this->db->where("event", $event_id);
+        }
+        
+        $recordsTotal = $this->db->count_all_results();
+    
+
+        // --------------------------------------------
+        // 2️⃣ Build query with JOIN
+        // --------------------------------------------
+        $this->db->select('attendance.*, members.idnumber, members.name, members.surname, members.cellnumber');
+        $this->db->from("attendance");
+        $this->db->join("members", "members.id = attendance.memberid", "left");
+
+                // ✅ FILTER BY EVENT
+        if (!empty($event_id)) {
+            $this->db->where("attendance.event", $event_id);
+            $this->db->where("attendance.status", 1);
+        }
+            
         if (!empty($search)) {
             $this->db->group_start();
-            $this->db->or_like("national_id", $search);
-            $this->db->or_like("otp", $search);
-            $this->db->or_like("fullname", $search);
-            $this->db->or_like("momo", $search);
+            $this->db->like("members.idnumber", $search);
+            $this->db->or_like("attendance.otp", $search);
+            $this->db->or_like("members.name", $search);
+            $this->db->or_like("members.surname", $search);
+            $this->db->or_like("members.cellnumber", $search);
             $this->db->group_end();
         }
-
         // --------------------------------------------
         // 3️⃣ Count filtered records
         // --------------------------------------------
@@ -1347,7 +1362,7 @@ public function member_subscription($memberid)
             $data[] = [
                 $count++,
                 "MSISDN",
-                $r->momo,
+                $r->cellnumber,
                 $this->db->get_where('settings' , array('type'=>'momo_amount'))->row()->description,
                 "Lunch" 
             ];
@@ -1529,16 +1544,15 @@ public function member_subscription($memberid)
         $page_data['page_title'] = 'MOMO PAY';
         $this->load->view('backend/index', $page_data);
     }
-    function pay_with_momo($event_id="")
+    function pay_with_momo($event_id)
     {
         if ($this->session->userdata('user_login') != 1)
             redirect('login', 'refresh');
 
-        $event_id = ($event_id==null) ? $this->input->post('events') : $event_id ;
 
         $page_data['page_name']  = 'pay_with_momo';
-        $page_data['attendees']  = $this->db->get_where('attendance', array('events' => $event_id))->result_array();
-        $page_data['page_title'] = get_phrase('pay_with_momo');
+        $page_data['event_id']  = $event_id;
+        $page_data['page_title'] = $this->db->get_where('events', array('id' => $page_data['event_id']))->row()->description.' Pay With MOMO';
         $this->load->view('backend/index', $page_data);
     }
 

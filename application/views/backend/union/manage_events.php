@@ -122,7 +122,15 @@
 						data-original-title="INVITE MEMBERS">
                         <i class="fa fa-users"></i>
                         </a>
-						<!-- CLIENT EDITING LINK -->
+						<!-- MOMO PAYMENT  -->
+
+						<a href="<?php echo base_url(); ?>index.php?union/pay_with_momo/<?php echo $row['id'];?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="tooltip" 
+						data-original-title="<?php echo get_phrase('view_event');?>" >
+                        <i class="fa fa-eye"></i>
+                        </a>
+
+
+						<!-- EVENT EDITING LINK -->
 
 						<a href="#" class="btn btn-xs btn-success" data-placement="top" data-toggle="tooltip" 
 						data-original-title="<?php echo get_phrase('edit');?>" onClick="showAjaxModal('<?php echo base_url();?>index.php?modal/popup/modal_event_edit/<?php echo $row['id'];?>');">
