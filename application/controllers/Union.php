@@ -2293,7 +2293,10 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($sms_cellnumber)) {                    
                     // Construct SMS message
-                    $updating_message = "Valued Member, your SNAT UNION Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://membership.snatunion.com/";
+                        $updating_message = "VM {$name} {$surname},\n\n";
+                        $updating_message .= "Your SNAT Union membership has been updated successfully.\n";
+                        $updating_message .= "Union No: 058-{$member->id}\n\n";
+                        $updating_message .= "Tell other VMs to update their KYC for Union Numbers here https://membership.snatunion.com/";
                     // Send SMS
                     $sms_result = $this->broadcast_message($sms_cellnumber, $updating_message);
                     
