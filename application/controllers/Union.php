@@ -2130,32 +2130,73 @@ public function member_subscription($memberid)
 
             // Cell number normalization
             $cell_raw = trim($row[7] ?? '');
-            $cell_clean = preg_replace('/[^0-9]/', '', $cell_raw);
 
-            if (empty($cell_clean)) {
-                $cellnumber = null;
-            } else {
+            // Step 1: split possible multiple numbers
+            $numbers = preg_split('/[\/,;|\s]+/', $cell_raw);
+
+            $valid_numbers = [];
+
+            foreach ($numbers as $num) {
+
+                $cell_clean = preg_replace('/[^0-9]/', '', $num);
+
+                if (empty($cell_clean)) continue;
+
                 $len = strlen($cell_clean);
+
                 if ($len === 8) {
-                    $cellnumber = '268' . $cell_clean;
+                    $normalized = '268' . $cell_clean;
+
                 } elseif ($len === 11 && substr($cell_clean, 0, 3) === '268') {
-                    $cellnumber = $cell_clean;
+                    $normalized = $cell_clean;
+
                 } elseif ($len === 9 && substr($cell_clean, 0, 1) === '0') {
-                    // Sometimes people put 076... → treat as 8-digit local
-                    $cellnumber = '268' . substr($cell_clean, 1);
+                    // 076xxxxxx → 26876xxxxxx
+                    $normalized = '268' . substr($cell_clean, 1);
+
                 } else {
-                    $errors[] = [
-                        'idnumber'   => $idnumber,
-                        'employeeno' => $employeeno,
-                        'error'      => 'Invalid cell number format: ' . $cell_raw . ' (cleaned: ' . $cell_clean . ')'
-                    ];
-                    $skipped++;
-                    $rows_processed++;
-                    $current_row++;
-                    continue;
+                    continue; // skip invalid formats silently (we'll handle later)
                 }
+
+                $valid_numbers[] = $normalized;
             }
 
+            // Step 2: decide best number
+            if (empty($valid_numbers)) {
+
+                $cell_clean = preg_replace('/[^0-9]/', '', $cell_raw);
+
+                $errors[] = [
+                    'idnumber'   => $idnumber,
+                    'employeeno' => $employeeno,
+                    'error'      => 'Invalid cell number format: ' . $cell_raw . ' (cleaned: ' . $cell_clean . ')'
+                ];
+
+                $skipped++;
+                $rows_processed++;
+                $current_row++;
+                continue;
+
+            } else {
+
+                // preference: 78 → 76 → 79 → others
+                usort($valid_numbers, function($a, $b) {
+
+                    $priority = function($num) {
+                        $prefix = substr($num, 3, 2);
+
+                        if ($prefix === '78') return 1;
+                        if ($prefix === '76') return 2;
+                        if ($prefix === '79') return 3;
+                        return 4;
+                    };
+
+                    return $priority($a) <=> $priority($b);
+                });
+
+                // pick best number
+                $cellnumber = $valid_numbers[0];
+            }
             $branch_name            = trim($row[8] ?? '');           // SNAT Union Branch
             $employment_status_desc = trim($row[9] ?? '');           // Employment Status
             // 10 = Confirmation & Consent (skipped)
@@ -2252,7 +2293,7 @@ public function member_subscription($memberid)
                 // Send SMS only if not already sent and if cellnumber exists
                 if (!$sms_exists && !empty($sms_cellnumber)) {                    
                     // Construct SMS message
-                    $updating_message = "Valued Member, your SNAT UNION Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://tinyurl.com/594xz6kk";
+                    $updating_message = "Valued Member, your SNAT UNION Number is 058-{$member->id}. Tell other VMs to update their KYC for Union Numbers here https://membership.snatunion.com/";
                     // Send SMS
                     $sms_result = $this->broadcast_message($sms_cellnumber, $updating_message);
                     
