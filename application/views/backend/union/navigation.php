@@ -55,7 +55,7 @@
 			<!-- Manage  Members and Branches  -->			
 			<li class="nav-parent <?php
 				if ($page_name == 'members' ||
-						$page_name == 'detailed_meetings' || $page_name == 'detailed_meetings' || $page_name == 'member_subscription')
+						$page_name == 'detailed_meetings' || $page_name == 'upload_members_spreadsheet' || $page_name == 'member_subscription')
 					echo 'nav-expanded nav-active';
 				?> ">
 					<a href="#">
