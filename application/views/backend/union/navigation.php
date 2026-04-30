@@ -151,7 +151,7 @@
 			</li>			
 			<?php } ?>
 			<!-- ADMIN MANAGEMENT PANEL -->
-			<?php if ($this->session->userdata('level') == 1 || $this->session->userdata('level') == 3) { ?>						
+			<?php if ($this->session->userdata('level') == 1 || $this->session->userdata('level') == 2) { ?>						
 			<li class="nav-parent <?php
 			if ($page_name == 'manage_users' ||
 					$page_name == 'manage_events' || $page_name == 'pay_with_momo' || $page_name == 'event_invite' )
