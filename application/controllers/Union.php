@@ -1444,7 +1444,97 @@ public function member_subscription($memberid)
         $page_data['page_name']  = 'report_per_event';
         $page_data['page_title'] =  $this->db->get_where('events', array('id' => $page_data['event_id']))->row()->description.' Attandence';
         $this->load->view('backend/index', $page_data);
-    }       
+    } 
+    
+    
+        /********** report per event ********************/
+    function add_attendee($event_id)
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url(), 'refresh');
+
+            $data['idnumber']    = $this->input->post('idnumber');
+            $data['employeeno']  = $this->input->post('employeeno');
+            $data['tscno']       = $this->input->post('tscno');
+            $data['surname']     = $this->input->post('surname');
+            $data['name']        = $this->input->post('name');
+            $data['cellnumber']  = $this->input->post('cellnumber');
+            $data['dob']         = $this->input->post('dob');
+            $data['gender']      = $this->input->post('gender');
+            $data['employment_status']    = $this->input->post('employment_status');
+            $data['branch']    = $this->input->post('branch');
+            $data['schoolcode']  = $this->input->post('schoolcode');
+            
+            // Format cellnumber: append 268 if not present
+            if (!empty($data['cellnumber']) && strpos($data['cellnumber'], '268') !== 0) {
+                $data['cellnumber'] = '268' . $data['cellnumber'];
+            }
+    
+            // Prevent duplicate ID number or passbook number
+            $this->db->group_start();
+    
+            if ($data['idnumber'] !== null && $data['idnumber'] !== '') {
+                $this->db->where('idnumber', $data['idnumber']);
+            }
+    
+            if ($data['cellnumber'] !== null && $data['cellnumber'] !== '') {
+                $this->db->or_where('cellnumber', $data['cellnumber']);
+            }
+    
+            if ($data['employeeno'] !== null && $data['employeeno'] !== '') {
+                $this->db->or_where('employeeno', $data['employeeno']);
+            }
+    
+            $this->db->group_end();
+    
+            $exists = $this->db->get('members')->num_rows();
+    
+            if ($exists > 0) {
+                $this->session->set_flashdata('flash_message_error', 'Member already registered: ID Number, Phone Number, Employment No and Pass Book Duplicacy not allowed');
+            } else {
+                $this->db->insert('members', $data);
+                $member_id = $this->db->insert_id();
+                
+                // Handle otp creation (only if member does not exist)
+                $otp = $this->generate_unique_otp();
+    
+                $att = [
+                    'memberid' => $member_id,
+                    'event' => $event_id,
+                    'otp' => $otp,
+                    'createdate' => date('Y-m-d H:i:s'),
+                    'attended_at' => date('Y-m-d H:i:s')
+                ];
+        
+                $insert_id = $this->Attendance_model->insert_if_not_exists($att);
+        
+                if ($insert_id) {
+                    $event = $this->db->get_where('events', array('id' => $event_id))->row();
+                    $event_name = $event->description;
+                    $time = $event->time;
+                    $location = $event->location;
+                    $date = $event->date;
+
+                    $message_template =$event_name . " : " .date('j F Y', strtotime($date)). ", at " . $location . ". Registration : " . $time . ", Bring: Payslip/receipt and ID.";
+                    // ✅ Inject OTP into message
+                    $final_message = $message_template . " OTP: " . $otp;
+        
+                    $sms_res = $this->send_sms_otp($data['cellnumber'], $final_message);
+        
+                    if ($sms_res['success']) {
+                        $this->session->set_flashdata('flash_message', "SMS sent to {$data['cellnumber']}");
+                        $success_count++;
+                    } else {
+                        $this->session->set_flashdata('flash_message_error', "SMS ERROR" . $sms_res['error']);
+                    }
+        
+                } else {
+                    $this->session->set_flashdata('flash_message_error', 'Member Already has OTP');
+                }               
+            }
+
+            redirect(base_url() . 'index.php?union/report_per_event/'.$event_id, 'refresh');
+    }  
     /********** MANAGE USERS (System Users / Admins) ********************/
     function manage_users($param1 = '', $param2 = '', $param3 = '')
     {
