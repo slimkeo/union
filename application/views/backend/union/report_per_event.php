@@ -3,6 +3,10 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+
+$branches=$this->db->get('branches')->result_array();
+$employment_status=$this->db->get('employment_status')->result_array();
+
 ?>
 <div class="row">
 	<div class="col-md-12">
