@@ -191,6 +191,32 @@ error_reporting(E_ALL);
    </div>
 </div>
 <script>
+// Extract DOB from Swazi ID number
+// Format: YYMMDD (first 6 digits)
+// Example: 9702206100465 -> 1997-02-20
+function extractDOBFromID() {
+    const idInput = document.getElementById('idnumber_input');
+    const dobInput = document.getElementById('dob_input');
+    const idValue = idInput.value.trim();
+    
+    // Must be at least 6 digits
+    if (idValue.length >= 6) {
+        const dateStr = idValue.substring(0, 6);
+        const yy = parseInt(dateStr.substring(0, 2));
+        const mm = dateStr.substring(2, 4);
+        const dd = dateStr.substring(4, 6);
+        
+        // Determine full year: if YY <= current year's last 2 digits, it's 20YY, else 19YY
+        const currentYear = new Date().getFullYear();
+        const currentYY = currentYear % 100;
+        const fullYear = yy <= currentYY ? 2000 + yy : 1900 + yy;
+        
+        // Format as YYYY-MM-DD
+        const dobValue = fullYear + '-' + mm + '-' + dd;
+        dobInput.value = dobValue;
+    }
+}
+
 $(document).ready(function() {
 
     var event_id = "<?php echo $event_id; ?>"; // OR get from dropdown/input
