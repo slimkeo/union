@@ -21,37 +21,7 @@
 					<span><?php echo get_phrase('dashboard'); ?></span>
 				</a>
 			</li> 
-			<!-- Manage  Payments -->
-			<li class="nav-parent <?php
-				if ($page_name == 'payments' ||
-						$page_name == 'delete_member' || $page_name == 'upload_spreadsheet' || $page_name == 'upload_spreadsheet_process' )
-					echo 'nav-expanded nav-active';
-				?> ">
-					<a href="#">
-						<i class="fa fa-money"></i>
-						<span>Payments</span>
-					</a>
-				<ul class="nav nav-children">
-					<li class="<?php if ($page_name == 'payments' ) echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/payments">
-							 <i class="fa fa-address-book"></i>
-							<span>Pay Subscriptions</span>
-						</a>
-					</li>
-					<li class="<?php if ($page_name == 'upload_spreadsheet' || $page_name == 'upload_spreadsheet_process') echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/upload_spreadsheet">
-							 <i class="fa fa-address-book"></i>
-							<span>Upload Spreadsheet</span>
-						</a>
-					</li>
-					<li class="<?php if ($page_name == 'pay_merchandise' ) echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/pay_merchandise">
-							 <i class="fa fa-address-book-o"></i>
-							<span>Merchandise Payments</span>
-						</a>
-					</li>								
-				</ul>
-			</li>	
+
 			<!-- Manage  Members and Branches  -->			
 			<li class="nav-parent <?php
 				if ($page_name == 'members' ||
@@ -83,6 +53,38 @@
 					</li>														
 				</ul>
 			</li>	
+			<?php if ($this->session->userdata('level')==1) { ?>
+			<!-- Manage  Payments -->
+			<li class="nav-parent <?php
+				if ($page_name == 'payments' ||
+						$page_name == 'delete_member' || $page_name == 'upload_spreadsheet' || $page_name == 'upload_spreadsheet_process' )
+					echo 'nav-expanded nav-active';
+				?> ">
+					<a href="#">
+						<i class="fa fa-money"></i>
+						<span>Payments</span>
+					</a>
+				<ul class="nav nav-children">
+					<li class="<?php if ($page_name == 'payments' ) echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/payments">
+							 <i class="fa fa-address-book"></i>
+							<span>Pay Subscriptions</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'upload_spreadsheet' || $page_name == 'upload_spreadsheet_process') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/upload_spreadsheet">
+							 <i class="fa fa-address-book"></i>
+							<span>Upload Spreadsheet</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'pay_merchandise' ) echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/pay_merchandise">
+							 <i class="fa fa-address-book-o"></i>
+							<span>Merchandise Payments</span>
+						</a>
+					</li>								
+				</ul>
+			</li>	
 			<li class="<?php if ($page_name == 'categories'|| $page_name=='claim_details' ) echo 'nav-active'; ?> ">
 				<a href="<?php echo base_url(); ?>index.php?union/claims">
 					 <i class="fa fa-slideshare"></i>
@@ -92,7 +94,6 @@
 			
 
 			<!-- manage sms -->
-			<?php if ($this->session->userdata('level')==1) { ?>
 			<li class="nav-parent <?php
 				if ($page_name == 'communication' ||
 						$page_name == 'sms_batch_invite' || $page_name == 'sms_communique')
@@ -150,7 +151,7 @@
 			</li>			
 			<?php } ?>
 			<!-- ADMIN MANAGEMENT PANEL -->
-			<?php if ($this->session->userdata('level') == 1) { ?>						
+			<?php if ($this->session->userdata('level') == 1 || $this->session->userdata('level') == 3) { ?>						
 			<li class="nav-parent <?php
 			if ($page_name == 'manage_users' ||
 					$page_name == 'manage_events' || $page_name == 'pay_with_momo' || $page_name == 'event_invite' )
