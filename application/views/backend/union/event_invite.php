@@ -6,7 +6,7 @@ $location = $event->location;
 $date = $event->date;
 
 // default message
-$message =$event_name . " : " . $date . ", at" . $location . ". Registration :" . $time . ", Bring: Payslip/receipt and ID";
+$message =$event_name . " : " .date('j F Y', strtotime($date)). ", at " . $location . ". Registration :" . $time . ", Bring: Payslip/receipt and ID";
 ?>
 
 <div class="row">
