@@ -111,7 +111,7 @@ foreach ($member_count_rows as $count_row) {
 
 						<!-- VIEW CLIENT DETAILS LINK -->
 						<a href="<?php echo base_url(); ?>index.php?union/report_per_branch/<?php echo $row['id'];?>" class="btn btn-xs btn-info" data-placement="top" data-toggle="tooltip" 
-						data-original-title="View Branch Report">
+						data-original-title="View Branch Members">
                         <i class="fa fa-eye"></i>
                         </a>
 
