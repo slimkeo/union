@@ -812,6 +812,88 @@ public function get_members()
         ]));
 }
 
+public function get_members_by_branch()
+{
+    if ($this->session->userdata('user_login') != 1) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                "draw" => 0,
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => []
+            ]));
+    }
+
+    $draw      = intval($this->input->post("draw"));
+    $start     = intval($this->input->post("start"));
+    $length    = intval($this->input->post("length"));
+    $search    = $this->input->post("search")['value'] ?? '';
+    $branch_id = intval($this->input->post("branch_id"));
+
+    if (!$branch_id) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => []
+            ]));
+    }
+
+    // Total records in this branch (no search)
+    $recordsTotal = $this->db->where('branch', $branch_id)
+                             ->count_all_results("members");
+
+    // Build filtered query
+    $this->db->from("members");
+    $this->db->where('branch', $branch_id);
+
+    if (!empty($search)) {
+        $this->db->group_start();
+        $this->db->like("idnumber", $search);
+        $this->db->or_like("surname", $search);
+        $this->db->or_like("name", $search);
+        $this->db->or_like("cellnumber", $search);
+        $this->db->or_like("employeeno", $search);
+        $this->db->group_end();
+    }
+
+    $recordsFiltered = $this->db->count_all_results('', false);
+
+    if ($length > 0) {
+        $this->db->limit($length, $start);
+    }
+    $this->db->order_by('surname', 'ASC');
+    $this->db->order_by('name', 'ASC');
+
+    $query = $this->db->get();
+
+    $data = [];
+    foreach ($query->result() as $r) {
+        $data[] = [
+            '058-' . $r->id,
+            $r->idnumber,
+            $r->employeeno,
+            $r->surname,
+            $r->name,
+            $r->cellnumber,
+            $r->gender,
+            $r->schoolcode
+        ];
+    }
+
+    return $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode([
+            "draw" => $draw,
+            "recordsTotal" => $recordsTotal,
+            "recordsFiltered" => $recordsFiltered,
+            "data" => $data
+        ]));
+}
+
 public function get_member_subscriptions()
 {
     if ($this->session->userdata('user_login') != 1) {
@@ -1445,7 +1527,18 @@ public function member_subscription($memberid)
         $page_data['page_title'] =  $this->db->get_where('events', array('id' => $page_data['event_id']))->row()->description.' Attandence';
         $this->load->view('backend/index', $page_data);
     } 
-    
+
+    /********** report per branch ********************/
+    function report_per_branch($branch_id)
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url(), 'refresh');
+
+        $page_data['branch_id'] = $branch_id;   
+        $page_data['page_name']  = 'report_per_branch';
+        $page_data['page_title'] =  $this->db->get_where('branches', array('id' => $page_data['branch_id']))->row()->name.' Attandence';
+        $this->load->view('backend/index', $page_data);
+    }     
     
         /********** report per event ********************/
     function add_attendee($event_id)
