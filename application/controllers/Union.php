@@ -1536,7 +1536,7 @@ public function member_subscription($memberid)
 
         $page_data['branch_id'] = $branch_id;   
         $page_data['page_name']  = 'report_per_branch';
-        $page_data['page_title'] =  $this->db->get_where('branches', array('id' => $page_data['branch_id']))->row()->name.' Attandence';
+        $page_data['page_title'] =  $this->db->get_where('branches', array('id' => $page_data['branch_id']))->row()->name.' Members';
         $this->load->view('backend/index', $page_data);
     }     
     
