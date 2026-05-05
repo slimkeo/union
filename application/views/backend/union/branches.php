@@ -1,5 +1,18 @@
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<?php
+$member_counts = [];
+$member_count_rows = $this->db
+	->select('branch, COUNT(*) AS total_members')
+	->from('members')
+	->group_by('branch')
+	->get()
+	->result_array();
+
+foreach ($member_count_rows as $count_row) {
+	$member_counts[$count_row['branch']] = (int) $count_row['total_members'];
+}
+?>
 
 <div class="row">
 	<div class="col-md-12">
@@ -45,6 +58,11 @@
 							<?php echo get_phrase('contacts');?>
 						</div>
 					</th>
+					<th>
+						<div>
+							Total Members
+						</div>
+					</th>
 
 					<th>
 						<div>
@@ -85,6 +103,9 @@
 						echo '';
 					}
 					?>
+					</td>
+					<td>
+						<?php echo isset($member_counts[$row['id']]) ? $member_counts[$row['id']] : 0; ?>
 					</td>
 					<td>
 
