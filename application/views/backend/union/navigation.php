@@ -39,7 +39,7 @@
 							<span>All Members</span>
 						</a>
 					</li>
-					<li class="<?php if ($page_name == 'branches' ) echo 'nav-active'; ?> ">
+					<li class="<?php if ($page_name == 'branches' || $page_name == 'report_per_branch') echo 'nav-active'; ?> ">
 						<a href="<?php echo base_url(); ?>index.php?union/branches">
 							 <i class="fa fa-address-book-o"></i>
 							<span>Branches</span>
