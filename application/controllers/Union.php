@@ -3833,4 +3833,387 @@ public function member_subscription($memberid)
         $page_data['enddate'] = $enddate;
         $this->load->view('backend/index', $page_data);
     }
+
+    // This part manages merchandise and orders
+
+    private function ensure_merchandise_workflow_tables()
+    {
+        $this->db->query("CREATE TABLE IF NOT EXISTS order_payments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            order_id INT NOT NULL,
+            amount_paid DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            payment_method VARCHAR(50) DEFAULT NULL,
+            transaction_ref VARCHAR(100) DEFAULT NULL,
+            paid_by INT DEFAULT NULL,
+            payment_date DATETIME NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_order_id (order_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+        $this->db->query("CREATE TABLE IF NOT EXISTS upload_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            branch_id INT DEFAULT NULL,
+            uploaded_by INT DEFAULT NULL,
+            file_name VARCHAR(255) NOT NULL,
+            total_rows INT NOT NULL DEFAULT 0,
+            successful_rows INT NOT NULL DEFAULT 0,
+            failed_rows INT NOT NULL DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+    }
+
+    private function normalize_size($size)
+    {
+        $allowed = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+        $clean = strtoupper(trim((string) $size));
+        return in_array($clean, $allowed, true) ? $clean : null;
+    }
+
+    private function refresh_order_payment_status($order_id)
+    {
+        $order = $this->db->get_where('orders', ['id' => $order_id])->row_array();
+        if (!$order) {
+            return;
+        }
+
+        $paid = $this->db->select_sum('amount_paid')->where('order_id', $order_id)->get('order_payments')->row_array();
+        $total_paid = (float) ($paid['amount_paid'] ?? 0);
+        $amount = (float) $order['amount'];
+
+        $status = 'unpaid';
+        if ($total_paid >= $amount && $amount > 0) {
+            $status = 'paid';
+        } elseif ($total_paid > 0 && $total_paid < $amount) {
+            $status = 'partial';
+        }
+
+        $this->db->where('id', $order_id)->update('orders', [
+            'payment_status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    public function merchendise($action = '', $id = '')
+    {
+        if ($this->session->userdata('user_login') != 1) redirect('login', 'refresh');
+
+        $admin_id = (int) $this->session->userdata('user_id');
+        $now = date('Y-m-d H:i:s');
+
+        if ($action === 'create') {
+            $data = [
+                'item_name' => trim($this->input->post('item_name')),
+                'item_code' => trim($this->input->post('item_code')),
+                'description' => trim($this->input->post('description')),
+                'price' => (float) $this->input->post('price'),
+                'stock_qty' => (int) $this->input->post('stock_qty'),
+                'status' => (int) $this->input->post('status'),
+                'created_by' => $admin_id,
+                'created_at' => $now,
+                'updated_at' => $now
+            ];
+            $this->db->insert('merchandise', $data);
+            $this->session->set_flashdata('flash_message', 'Merchandise item added');
+            redirect(base_url() . 'index.php?union/merchendise', 'refresh');
+        }
+
+        if ($action === 'update' && !empty($id)) {
+            $data = [
+                'item_name' => trim($this->input->post('item_name')),
+                'item_code' => trim($this->input->post('item_code')),
+                'description' => trim($this->input->post('description')),
+                'price' => (float) $this->input->post('price'),
+                'stock_qty' => (int) $this->input->post('stock_qty'),
+                'status' => (int) $this->input->post('status'),
+                'updated_at' => $now
+            ];
+            $this->db->where('id', (int) $id)->update('merchandise', $data);
+            $this->session->set_flashdata('flash_message', 'Merchandise item updated');
+            redirect(base_url() . 'index.php?union/merchendise', 'refresh');
+        }
+
+        if ($action === 'delete' && !empty($id)) {
+            $this->db->where('id', (int) $id)->delete('merchandise');
+            $this->session->set_flashdata('flash_message', 'Merchandise item deleted');
+            redirect(base_url() . 'index.php?union/merchendise', 'refresh');
+        }
+
+        if ($action === 'toggle' && !empty($id)) {
+            $item = $this->db->get_where('merchandise', ['id' => (int) $id])->row_array();
+            if ($item) {
+                $this->db->where('id', (int) $id)->update('merchandise', [
+                    'status' => ((int) $item['status'] === 1) ? 0 : 1,
+                    'updated_at' => $now
+                ]);
+            }
+            redirect(base_url() . 'index.php?union/merchendise', 'refresh');
+        }
+
+        $page_data['items'] = $this->db->order_by('id', 'DESC')->get('merchandise')->result_array();
+        $page_data['page_name'] = 'merchendise';
+        $page_data['page_title'] = 'Manage Merchandise';
+        $this->load->view('backend/index', $page_data);
+    }
+
+    public function orders($action = '', $id = '')
+    {
+        if ($this->session->userdata('user_login') != 1) redirect('login', 'refresh');
+        $this->ensure_merchandise_workflow_tables();
+
+        $admin_id = (int) $this->session->userdata('user_id');
+        $now = date('Y-m-d H:i:s');
+
+        if ($action === 'create') {
+            $member_id = (int) $this->input->post('member_id');
+            $branch_id = (int) $this->input->post('branch_id');
+            $merchandise_id = (int) $this->input->post('merchandise_id');
+            $quantity = (int) $this->input->post('quantity');
+            $size = $this->normalize_size($this->input->post('size'));
+
+            $item = $this->db->get_where('merchandise', ['id' => $merchandise_id])->row_array();
+            if (!$item || !$size || $quantity < 1) {
+                $this->session->set_flashdata('flash_message_error', 'Invalid order data');
+                redirect(base_url() . 'index.php?union/orders', 'refresh');
+            }
+
+            $amount = ((float) $item['price']) * $quantity;
+            $data = [
+                'order_number' => 'ORD-' . date('YmdHis') . '-' . mt_rand(100, 999),
+                'member_id' => $member_id,
+                'branch_id' => $branch_id,
+                'merchandise_id' => $merchandise_id,
+                'quantity' => $quantity,
+                'size' => $size,
+                'amount' => $amount,
+                'payment_status' => $this->input->post('payment_status') ?: 'unpaid',
+                'collection_status' => $this->input->post('collection_status') ?: 'pending',
+                'ordered_by' => (int) $this->input->post('ordered_by'),
+                'uploaded_by' => $admin_id,
+                'source' => $this->input->post('source') ?: 'admin',
+                'notes' => trim($this->input->post('notes')),
+                'created_at' => $now,
+                'updated_at' => $now
+            ];
+            $this->db->insert('orders', $data);
+            $this->session->set_flashdata('flash_message', 'Order created');
+            redirect(base_url() . 'index.php?union/orders', 'refresh');
+        }
+
+        if ($action === 'update' && !empty($id)) {
+            $update_data = [
+                'payment_status' => $this->input->post('payment_status'),
+                'collection_status' => $this->input->post('collection_status'),
+                'notes' => trim($this->input->post('notes')),
+                'updated_at' => $now
+            ];
+            $this->db->where('id', (int) $id)->update('orders', $update_data);
+            $this->session->set_flashdata('flash_message', 'Order updated');
+            redirect(base_url() . 'index.php?union/orders', 'refresh');
+        }
+
+        if ($action === 'delete' && !empty($id)) {
+            $this->db->where('id', (int) $id)->delete('orders');
+            $this->db->where('order_id', (int) $id)->delete('order_payments');
+            $this->session->set_flashdata('flash_message', 'Order deleted');
+            redirect(base_url() . 'index.php?union/orders', 'refresh');
+        }
+
+        if ($action === 'pay' && !empty($id)) {
+            $amount_paid = (float) $this->input->post('amount_paid');
+            if ($amount_paid > 0) {
+                $this->db->insert('order_payments', [
+                    'order_id' => (int) $id,
+                    'amount_paid' => $amount_paid,
+                    'payment_method' => trim($this->input->post('payment_method')),
+                    'transaction_ref' => trim($this->input->post('transaction_ref')),
+                    'paid_by' => $admin_id,
+                    'payment_date' => $this->input->post('payment_date') ?: $now,
+                    'created_at' => $now
+                ]);
+                $this->refresh_order_payment_status((int) $id);
+                $this->session->set_flashdata('flash_message', 'Payment recorded');
+            }
+            redirect(base_url() . 'index.php?union/orders', 'refresh');
+        }
+
+        $branch_filter = $this->input->get('branch_id');
+        $payment_filter = $this->input->get('payment_status');
+        $collection_filter = $this->input->get('collection_status');
+
+        $this->db->select('orders.*, members.name AS member_name, members.surname AS member_surname, branches.name AS branch_name, merchandise.item_name');
+        $this->db->from('orders');
+        $this->db->join('members', 'members.id = orders.member_id', 'left');
+        $this->db->join('branches', 'branches.id = orders.branch_id', 'left');
+        $this->db->join('merchandise', 'merchandise.id = orders.merchandise_id', 'left');
+        if (!empty($branch_filter)) $this->db->where('orders.branch_id', (int) $branch_filter);
+        if (!empty($payment_filter)) $this->db->where('orders.payment_status', $payment_filter);
+        if (!empty($collection_filter)) $this->db->where('orders.collection_status', $collection_filter);
+        $page_data['orders'] = $this->db->order_by('orders.id', 'DESC')->get()->result_array();
+
+        $page_data['branches'] = $this->db->order_by('name', 'ASC')->get_where('branches', ['status' => 1])->result_array();
+        $page_data['members'] = $this->db->order_by('surname', 'ASC')->get_where('members', ['is_active' => 1])->result_array();
+        $page_data['items'] = $this->db->order_by('item_name', 'ASC')->get_where('merchandise', ['status' => 1])->result_array();
+        $page_data['page_name'] = 'orders';
+        $page_data['page_title'] = 'Merchandise Orders';
+        $this->load->view('backend/index', $page_data);
+    }
+
+    public function orders_perbranch()
+    {
+        if ($this->session->userdata('user_login') != 1) redirect('login', 'refresh');
+
+        $query = $this->db->query("
+            SELECT 
+                b.id AS branch_id,
+                b.name AS branch_name,
+                COUNT(o.id) AS total_orders,
+                COALESCE(SUM(o.quantity), 0) AS total_quantity,
+                COALESCE(SUM(o.amount), 0) AS total_amount,
+                COALESCE(SUM(CASE WHEN o.payment_status = 'paid' THEN o.amount ELSE 0 END), 0) AS paid_amount
+            FROM branches b
+            LEFT JOIN orders o ON o.branch_id = b.id
+            GROUP BY b.id, b.name
+            ORDER BY total_amount DESC
+        ");
+
+        $page_data['branch_orders'] = $query->result_array();
+        $page_data['page_name'] = 'orders_perbranch';
+        $page_data['page_title'] = 'Orders Per Branch';
+        $this->load->view('backend/index', $page_data);
+    }
+
+    // Backward compatibility for old route reference
+    public function order_perbranch()
+    {
+        return $this->orders_perbranch();
+    }
+
+    public function merchendise_report()
+    {
+        if ($this->session->userdata('user_login') != 1) redirect('login', 'refresh');
+
+        $overview = $this->db->query("
+            SELECT 
+                m.id,
+                m.item_name,
+                m.item_code,
+                m.stock_qty,
+                m.price,
+                COALESCE(SUM(o.quantity), 0) AS qty_ordered,
+                COALESCE(SUM(o.amount), 0) AS total_sales
+            FROM merchandise m
+            LEFT JOIN orders o ON o.merchandise_id = m.id
+            GROUP BY m.id, m.item_name, m.item_code, m.stock_qty, m.price
+            ORDER BY total_sales DESC
+        ")->result_array();
+
+        $totals = $this->db->query("
+            SELECT
+                COUNT(id) AS total_orders,
+                COALESCE(SUM(amount), 0) AS total_order_value,
+                COALESCE(SUM(CASE WHEN payment_status = 'paid' THEN amount ELSE 0 END), 0) AS total_paid_value,
+                COALESCE(SUM(CASE WHEN collection_status = 'collected' THEN 1 ELSE 0 END), 0) AS collected_count
+            FROM orders
+        ")->row_array();
+
+        $page_data['overview'] = $overview;
+        $page_data['totals'] = $totals;
+        $page_data['page_name'] = 'merchendise_report';
+        $page_data['page_title'] = 'Merchandise Report';
+        $this->load->view('backend/index', $page_data);
+    }
+
+    public function upload_merchendise_orders()
+    {
+        if ($this->session->userdata('user_login') != 1) redirect('login', 'refresh');
+        $this->ensure_merchandise_workflow_tables();
+
+        if ($this->input->method(true) === 'POST') {
+            if (empty($_FILES['orders_file']['name'])) {
+                $this->session->set_flashdata('flash_message_error', 'Please select a CSV file.');
+                redirect(base_url() . 'index.php?union/upload_merchendise_orders', 'refresh');
+            }
+
+            $tmp = $_FILES['orders_file']['tmp_name'];
+            $file_name = $_FILES['orders_file']['name'];
+            $branch_id_for_log = (int) $this->input->post('branch_id');
+            $admin_id = (int) $this->session->userdata('user_id');
+
+            $total_rows = 0;
+            $successful_rows = 0;
+            $failed_rows = 0;
+            $failed_messages = [];
+
+            if (($handle = fopen($tmp, 'r')) !== false) {
+                $first_row = true;
+                while (($row = fgetcsv($handle)) !== false) {
+                    if ($first_row) {
+                        $first_row = false;
+                        continue;
+                    }
+
+                    $total_rows++;
+                    $member_id = (int) ($row[0] ?? 0);
+                    $branch_id = (int) ($row[1] ?? 0);
+                    $merchandise_id = (int) ($row[2] ?? 0);
+                    $size = $this->normalize_size($row[3] ?? '');
+                    $quantity = (int) ($row[4] ?? 0);
+
+                    $member = $this->db->get_where('members', ['id' => $member_id])->row_array();
+                    $branch = $this->db->get_where('branches', ['id' => $branch_id])->row_array();
+                    $item = $this->db->get_where('merchandise', ['id' => $merchandise_id, 'status' => 1])->row_array();
+
+                    if (!$member || !$branch || !$item || !$size || $quantity < 1) {
+                        $failed_rows++;
+                        $failed_messages[] = 'Row ' . ($total_rows + 1) . ' failed validation.';
+                        continue;
+                    }
+
+                    $amount = ((float) $item['price']) * $quantity;
+                    $insert = [
+                        'order_number' => 'ORD-' . date('YmdHis') . '-' . mt_rand(100, 999),
+                        'member_id' => $member_id,
+                        'branch_id' => $branch_id,
+                        'merchandise_id' => $merchandise_id,
+                        'quantity' => $quantity,
+                        'size' => $size,
+                        'amount' => $amount,
+                        'payment_status' => 'unpaid',
+                        'collection_status' => 'pending',
+                        'ordered_by' => (int) $member_id,
+                        'uploaded_by' => $admin_id,
+                        'source' => 'spreadsheet',
+                        'notes' => 'Uploaded from spreadsheet',
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    $this->db->insert('orders', $insert);
+                    $successful_rows++;
+                }
+                fclose($handle);
+            }
+
+            $this->db->insert('upload_logs', [
+                'branch_id' => $branch_id_for_log,
+                'uploaded_by' => $admin_id,
+                'file_name' => $file_name,
+                'total_rows' => $total_rows,
+                'successful_rows' => $successful_rows,
+                'failed_rows' => $failed_rows,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            if (!empty($failed_messages)) {
+                $this->session->set_flashdata('flash_message_error', implode(' ', array_slice($failed_messages, 0, 5)));
+            }
+            $this->session->set_flashdata('flash_message', 'Upload completed. Success: ' . $successful_rows . ', Failed: ' . $failed_rows);
+            redirect(base_url() . 'index.php?union/upload_merchendise_orders', 'refresh');
+        }
+
+        $page_data['branches'] = $this->db->order_by('name', 'ASC')->get_where('branches', ['status' => 1])->result_array();
+        $page_data['upload_logs'] = $this->db->order_by('id', 'DESC')->get('upload_logs')->result_array();
+        $page_data['page_name'] = 'upload_merchendise_orders';
+        $page_data['page_title'] = 'Upload Merchandise Orders';
+        $this->load->view('backend/index', $page_data);
+    }
 }

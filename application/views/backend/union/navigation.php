@@ -91,7 +91,106 @@
 					<span><?php echo get_phrase('manage_claims'); ?></span>
 				</a>
 			</li>  			
+			<li class="nav-parent <?php
+				if ($page_name == 'payments' ||
+						$page_name == 'delete_member' || $page_name == 'upload_spreadsheet' || $page_name == 'upload_spreadsheet_process' )
+					echo 'nav-expanded nav-active';
+				?> ">
+					<a href="#">
+						<i class="fa fa-money"></i>
+						<span>Payments</span>
+					</a>
+				<ul class="nav nav-children">
+					<li class="<?php if ($page_name == 'payments' ) echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/payments">
+							 <i class="fa fa-address-book"></i>
+							<span>Pay Subscriptions</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'upload_spreadsheet' || $page_name == 'upload_spreadsheet_process') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/upload_spreadsheet">
+							 <i class="fa fa-address-book"></i>
+							<span>Upload Spreadsheet</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'pay_merchandise' ) echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/pay_merchandise">
+							 <i class="fa fa-address-book-o"></i>
+							<span>Merchandise Payments</span>
+						</a>
+					</li>								
+				</ul>
+			</li>	
+			<li class="<?php if ($page_name == 'categories'|| $page_name=='claim_details' ) echo 'nav-active'; ?> ">
+				<a href="<?php echo base_url(); ?>index.php?union/claims">
+					 <i class="fa fa-slideshare"></i>
+					<span><?php echo get_phrase('manage_claims'); ?></span>
+				</a>
+			</li>  			
 			
+
+			<!-- manage sms -->
+			<li class="nav-parent <?php
+				if ($page_name == 'communication' ||
+						$page_name == 'sms_batch_invite' || $page_name == 'sms_communique')
+					echo 'nav-expanded nav-active';
+				?> ">
+					<a href="#">
+						<i class="fa fa-bullhorn"></i>
+						<span>SMS Communication</span>
+					</a>
+				<ul class="nav nav-children">
+					<li class="<?php if ($page_name == 'sms_communique' ) echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/sms_communique">
+							 <i class="fa fa-address-book-o"></i>
+							<span>SMS Communique</span>
+						</a>
+					</li>									
+				</ul>
+			</li>
+			<!-- Manage  Merchendise -->
+			<li class="nav-parent <?php
+				if ($page_name == 'merchendise' ||
+						$page_name == 'orders' || $page_name == 'orders_perbranch' || $page_name == 'order_perbranch' || $page_name == 'upload_merchendise_orders' || $page_name == 'merchendise_report')
+					echo 'nav-expanded nav-active';
+				?> ">
+					<a href="#">
+						<i class="fa fa-money"></i>
+						<span>Merchandise</span>
+					</a>
+				<ul class="nav nav-children">
+					<li class="<?php if ($page_name == 'merchendise' ) echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/merchendise">
+							 <i class="fa fa-calendar"></i>
+							<span>Manage Merchandise</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'order_perbranch' || $page_name == 'orders') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/orders">
+							 <i class="fa fa-users"></i>
+							<span> Orders</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'orders_perbranch' ||  $page_name == 'order_perbranch') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/orders_perbranch">
+							 <i class="fa fa-sitemap"></i>
+							<span>Orders Per Branch</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'merchendise_report') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/merchendise_report">
+							 <i class="fa fa-address-book-o"></i>
+							<span>Merchandise Report</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'upload_merchendise_orders') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/upload_merchendise_orders">
+							 <i class="fa fa-upload"></i>
+							<span>Upload Orders</span>
+						</a>
+					</li>
+				</ul>
+			</li>			
 
 			<!-- manage sms -->
 			<li class="nav-parent <?php
