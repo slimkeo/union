@@ -25,7 +25,8 @@
 			<!-- Manage  Members and Branches  -->			
 			<li class="nav-parent <?php
 				if ($page_name == 'members' ||
-						$page_name == 'members' || $page_name == 'upload_members_spreadsheet' || $page_name == 'branches' || $page_name == 'report_per_branch')
+						$page_name == 'member_lookup' ||
+						$page_name == 'upload_members_spreadsheet' || $page_name == 'branches' || $page_name == 'report_per_branch')
 					echo 'nav-expanded nav-active';
 				?> ">
 					<a href="#">
@@ -43,6 +44,12 @@
 						<a href="<?php echo base_url(); ?>index.php?union/branches">
 							 <i class="fa fa-address-book-o"></i>
 							<span>Branches</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'member_lookup') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/member_lookup">
+							 <i class="fa fa-address-book-o"></i>
+							<span>SASA</span>
 						</a>
 					</li>
 					<li class="<?php if ($page_name == 'upload_members_spreadsheet' ) echo 'nav-active'; ?> ">

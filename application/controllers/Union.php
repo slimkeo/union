@@ -361,6 +361,186 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $this->load->view('backend/index', $page_data);
     }
 
+    /********** Member Lookup ********************/
+    function member_lookup()
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url(), 'refresh');
+
+        $page_data['page_name']       = 'member_lookup';
+        $page_data['page_title']      = 'Member Lookup';
+        $page_data['lookup_results']  = [];
+        $page_data['not_found']       = [];
+        $this->load->view('backend/index', $page_data);
+    }
+
+    function member_lookup_do()
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url(), 'refresh');
+
+        if (empty($_FILES['csv_file']) || !is_uploaded_file($_FILES['csv_file']['tmp_name'])) {
+            $this->session->set_flashdata('flash_message_error', 'No CSV file was uploaded');
+            redirect(base_url() . 'index.php?union/member_lookup', 'refresh');
+        }
+
+        $file_name = $_FILES['csv_file']['name'];
+        $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+
+        if ($file_ext !== 'csv') {
+            $this->session->set_flashdata('flash_message_error', 'Only .csv files are allowed');
+            redirect(base_url() . 'index.php?union/member_lookup', 'refresh');
+        }
+
+        $mime_type = mime_content_type($_FILES['csv_file']['tmp_name']);
+        $allowed_mimes = [
+            'text/csv',
+            'text/plain',
+            'application/csv',
+            'application/x-csv',
+            'application/vnd.ms-excel'
+        ];
+
+        if (!in_array($mime_type, $allowed_mimes)) {
+            $this->session->set_flashdata('flash_message_error', 'Invalid file format. Please upload a valid CSV file.');
+            redirect(base_url() . 'index.php?union/member_lookup', 'refresh');
+        }
+
+        $handle = fopen($_FILES['csv_file']['tmp_name'], 'r');
+        if ($handle === false) {
+            $this->session->set_flashdata('flash_message_error', 'Unable to open the uploaded file');
+            redirect(base_url() . 'index.php?union/member_lookup', 'refresh');
+        }
+
+        $header = fgetcsv($handle);
+        if (!$header) {
+            fclose($handle);
+            $this->session->set_flashdata('flash_message_error', 'The CSV file is empty');
+            redirect(base_url() . 'index.php?union/member_lookup', 'refresh');
+        }
+
+        $identifier_col = null;
+        foreach ($header as $idx => $col) {
+            if (strtolower(trim($col)) === 'identifier') {
+                $identifier_col = $idx;
+                break;
+            }
+        }
+
+        if ($identifier_col === null) {
+            fclose($handle);
+            $this->session->set_flashdata('flash_message_error', 'CSV must contain a column named "identifier" in the header row');
+            redirect(base_url() . 'index.php?union/member_lookup', 'refresh');
+        }
+
+        $lookup_results = [];
+        $not_found      = [];
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (empty(array_filter($row, function ($cell) {
+                return trim((string) $cell) !== '';
+            }))) {
+                continue;
+            }
+
+            $identifier = isset($row[$identifier_col]) ? trim((string) $row[$identifier_col]) : '';
+            if ($identifier === '') {
+                continue;
+            }
+
+            $member = $this->_lookup_member_by_identifier($identifier);
+            if (!$member) {
+                $not_found[] = $identifier;
+                continue;
+            }
+
+            $lookup_results[] = $this->_enrich_member_lookup_row($member, $identifier);
+        }
+
+        fclose($handle);
+
+        $page_data['page_name']      = 'member_lookup';
+        $page_data['page_title']     = 'Member Lookup';
+        $page_data['lookup_results'] = $lookup_results;
+        $page_data['not_found']      = $not_found;
+        $this->load->view('backend/index', $page_data);
+    }
+
+    function _lookup_member_by_identifier($identifier)
+    {
+        $identifier = trim((string) $identifier);
+        if ($identifier === '') {
+            return null;
+        }
+
+        $member = $this->db->get_where('members', ['idnumber' => $identifier])->row_array();
+        if ($member) {
+            return $member;
+        }
+
+        if (ctype_digit($identifier)) {
+            $member = $this->db->get_where('members', ['id' => (int) $identifier])->row_array();
+            if ($member) {
+                return $member;
+            }
+        }
+
+        $cell = $identifier;
+        if (strpos($cell, '268') !== 0) {
+            $cell = '268' . $cell;
+        }
+
+        $member = $this->db->get_where('members', ['cellnumber' => $cell])->row_array();
+        if ($member) {
+            return $member;
+        }
+
+        if (ctype_digit($identifier)) {
+            $member = $this->db
+                ->like('cellnumber', $identifier, 'before')
+                ->get('members')
+                ->row_array();
+            if ($member) {
+                return $member;
+            }
+        }
+
+        return null;
+    }
+
+    function _enrich_member_lookup_row($member, $identifier)
+    {
+        $branch_name = 'N/A';
+        if (!empty($member['branch'])) {
+            $branch = $this->db->select('name')->get_where('branches', ['id' => $member['branch']])->row();
+            if ($branch && !empty($branch->name)) {
+                $branch_name = $branch->name;
+            }
+        }
+
+        $last_payment = $this->db
+            ->where('memberid', $member['id'])
+            ->order_by('date', 'DESC')
+            ->order_by('id', 'DESC')
+            ->limit(1)
+            ->get('subscriptions')
+            ->row_array();
+
+        return [
+            'identifier'          => $identifier,
+            'member_id'           => $member['id'],
+            'idnumber'            => $member['idnumber'] ?? '',
+            'employeeno'          => $member['employeeno'] ?? '',
+            'surname'             => $member['surname'] ?? '',
+            'name'                => $member['name'] ?? '',
+            'cellnumber'          => $member['cellnumber'] ?? '',
+            'branch_name'         => $branch_name,
+            'last_payment_amount' => $last_payment['amount'] ?? null,
+            'last_payment_date'   => $last_payment['date'] ?? null,
+            'last_payment_status' => $last_payment['status'] ?? null,
+        ];
+    }
+
     /********** MEMBER PROFILE PRINT ********************/
     function member_profile_print($memberid)
     {
@@ -707,110 +887,110 @@ function members($param1 = '', $param2 = '', $param3 = '')
     }
 
 
-public function get_members()
-{
-    $draw   = intval($this->input->post("draw"));
-    $start  = intval($this->input->post("start"));
-    $length = intval($this->input->post("length"));
-    $search = $this->input->post("search")['value'];
+    public function get_members()
+    {
+        $draw   = intval($this->input->post("draw"));
+        $start  = intval($this->input->post("start"));
+        $length = intval($this->input->post("length"));
+        $search = $this->input->post("search")['value'];
 
-    // --------------------------------------------
-    // 1️⃣ Total records (no search)
-    // --------------------------------------------
-    $recordsTotal = $this->db->count_all("members");
+        // --------------------------------------------
+        // 1️⃣ Total records (no search)
+        // --------------------------------------------
+        $recordsTotal = $this->db->count_all("members");
 
-    // --------------------------------------------
-    // 2️⃣ Build filtered query
-    // --------------------------------------------
-    $this->db->from("members");
+        // --------------------------------------------
+        // 2️⃣ Build filtered query
+        // --------------------------------------------
+        $this->db->from("members");
 
-    if (!empty($search)) {
-        $this->db->group_start();
-        $this->db->like("idnumber", $search);
-        $this->db->or_like("surname", $search);
-        $this->db->or_like("name", $search);
-        $this->db->or_like("cellnumber", $search);
-         $this->db->or_like("employeeno", $search);
-        $this->db->group_end();
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like("idnumber", $search);
+            $this->db->or_like("surname", $search);
+            $this->db->or_like("name", $search);
+            $this->db->or_like("cellnumber", $search);
+            $this->db->or_like("employeeno", $search);
+            $this->db->group_end();
+        }
+
+        // --------------------------------------------
+        // 3️⃣ Count filtered records
+        // --------------------------------------------
+        $recordsFiltered = $this->db->count_all_results('', false);
+
+        // --------------------------------------------
+        // 4️⃣ Pagination
+        // --------------------------------------------
+        $this->db->limit($length, $start);
+
+        // --------------------------------------------
+        // 5️⃣ Fetch results
+        // --------------------------------------------
+        $query = $this->db->get();
+
+        $data = [];
+        foreach($query->result() as $r){
+    $data[] = [
+        '058-'.$r->id,
+        $r->idnumber,
+        $r->employeeno,
+        $r->surname,
+        $r->name,
+        $r->cellnumber,
+        $r->gender,
+        $r->schoolcode,
+
+        '
+        <a href="'.base_url('index.php?union/member_subscription/'.$r->id).'"
+        class="btn btn-xs btn-info"
+        target="_blank"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="View subscription">
+            <i class="fa fa-money"></i>
+        </a>
+
+        <a href="'.base_url('index.php?union/member_details/'.$r->id).'"
+        class="btn btn-xs btn-info"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="View Member">
+            <i class="fa fa-eye"></i>
+        </a>
+
+
+        <!-- EDIT (AJAX MODAL) -->
+        <a href="#"
+        class="btn btn-xs btn-primary"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Edit Member"
+        onclick="showAjaxModal(\''.base_url('index.php?modal/popup/modal_edit_member/'.$r->id).'\')">
+            <i class="fa fa-edit"></i>
+        </a>
+
+        <a href="#"
+        class="btn btn-xs btn-danger"
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Delete Member"
+        onclick="confirm_modal(\''.base_url('index.php?union/member/delete/'.$r->id).'\')">
+            <i class="fa fa-trash"></i>
+        </a>
+        '
+    ];
+        }
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                "draw" => $draw,
+                "recordsTotal" => $recordsTotal,
+                "recordsFiltered" => $recordsFiltered,
+                "data" => $data
+            ]));
     }
-
-    // --------------------------------------------
-    // 3️⃣ Count filtered records
-    // --------------------------------------------
-    $recordsFiltered = $this->db->count_all_results('', false);
-
-    // --------------------------------------------
-    // 4️⃣ Pagination
-    // --------------------------------------------
-    $this->db->limit($length, $start);
-
-    // --------------------------------------------
-    // 5️⃣ Fetch results
-    // --------------------------------------------
-    $query = $this->db->get();
-
-    $data = [];
-    foreach($query->result() as $r){
-   $data[] = [
-    '058-'.$r->id,
-    $r->idnumber,
-    $r->employeeno,
-    $r->surname,
-    $r->name,
-    $r->cellnumber,
-    $r->gender,
-    $r->schoolcode,
-
-    '
-    <a href="'.base_url('index.php?union/member_subscription/'.$r->id).'"
-       class="btn btn-xs btn-info"
-       target="_blank"
-       data-toggle="tooltip"
-       data-placement="top"
-       title="View subscription">
-        <i class="fa fa-money"></i>
-    </a>
-
-    <a href="'.base_url('index.php?union/member_details/'.$r->id).'"
-       class="btn btn-xs btn-info"
-       data-toggle="tooltip"
-       data-placement="top"
-       title="View Member">
-        <i class="fa fa-eye"></i>
-    </a>
-
-
-    <!-- EDIT (AJAX MODAL) -->
-    <a href="#"
-       class="btn btn-xs btn-primary"
-       data-toggle="tooltip"
-       data-placement="top"
-       title="Edit Member"
-       onclick="showAjaxModal(\''.base_url('index.php?modal/popup/modal_edit_member/'.$r->id).'\')">
-        <i class="fa fa-edit"></i>
-    </a>
-
-    <a href="#"
-       class="btn btn-xs btn-danger"
-       data-toggle="tooltip"
-       data-placement="top"
-       title="Delete Member"
-       onclick="confirm_modal(\''.base_url('index.php?union/member/delete/'.$r->id).'\')">
-        <i class="fa fa-trash"></i>
-    </a>
-    '
-];
-    }
-
-    return $this->output
-        ->set_content_type('application/json')
-        ->set_output(json_encode([
-            "draw" => $draw,
-            "recordsTotal" => $recordsTotal,
-            "recordsFiltered" => $recordsFiltered,
-            "data" => $data
-        ]));
-}
 
 public function get_members_by_branch()
 {
