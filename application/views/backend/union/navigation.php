@@ -49,7 +49,7 @@
 					<li class="<?php if ($page_name == 'member_lookup') echo 'nav-active'; ?> ">
 						<a href="<?php echo base_url(); ?>index.php?union/member_lookup">
 							 <i class="fa fa-address-book-o"></i>
-							<span>SASA</span>
+							<span>LOOKUP MEMBERS</span>
 						</a>
 					</li>
 					<li class="<?php if ($page_name == 'upload_members_spreadsheet' ) echo 'nav-active'; ?> ">
