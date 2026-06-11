@@ -115,8 +115,23 @@ $not_found      = isset($not_found) ? $not_found : [];
 
                         <?php if (!empty($not_found)): ?>
                         <h4 style="margin-top: 25px;">Identifiers Not Found (<?php echo count($not_found); ?>)</h4>
-                        <div class="alert alert-warning">
-                            <?php echo htmlspecialchars(implode(', ', $not_found)); ?>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped mb-none" id="datatable-member-lookup-not-found">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Identifier</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $nf = 1; foreach ($not_found as $identifier): ?>
+                                    <tr>
+                                        <td><?php echo $nf++; ?></td>
+                                        <td><?php echo htmlspecialchars($identifier); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -129,12 +144,64 @@ $not_found      = isset($not_found) ? $not_found : [];
 
 <script>
 $(document).ready(function() {
+    var exportAllModifier = { page: 'all', search: 'applied' };
+
+    function buildExportButtons(exportColumns) {
+        var exportOptions = {
+            modifier: exportAllModifier,
+            columns: exportColumns
+        };
+
+        return [
+            { extend: 'copy',  text: 'Copy',  exportOptions: exportOptions },
+            { extend: 'excel', text: 'Excel', exportOptions: exportOptions },
+            { extend: 'pdf',   text: 'PDF',   exportOptions: exportOptions },
+            {
+                extend: 'print',
+                text: 'Print',
+                exportOptions: exportOptions,
+                action: function (e, dt, button, config) {
+                    var oldLength = dt.page.len();
+                    var oldPage = dt.page();
+
+                    dt.one('draw', function () {
+                        if ($.fn.dataTable.ext.buttons.print && $.fn.dataTable.ext.buttons.print.action) {
+                            $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                        } else {
+                            window.print();
+                        }
+
+                        setTimeout(function () {
+                            dt.page.len(oldLength);
+                            dt.one('draw', function () {
+                                dt.page(oldPage).draw('page');
+                            });
+                            dt.draw(false);
+                        }, 500);
+                    });
+
+                    dt.page.len(-1).draw();
+                }
+            }
+        ];
+    }
+
+    var tableDefaults = {
+        dom: 'Bfrtip',
+        pageLength: 25,
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, 'All']]
+    };
+
     if ($.fn.DataTable && $('#datatable-member-lookup').length) {
-        $('#datatable-member-lookup').DataTable({
-            dom: 'Bfrtip',
-            buttons: ['copy', 'excel', 'pdf', 'print'],
-            pageLength: 25
-        });
+        $('#datatable-member-lookup').DataTable($.extend({}, tableDefaults, {
+            buttons: buildExportButtons(':not(:last-child)')
+        }));
+    }
+
+    if ($.fn.DataTable && $('#datatable-member-lookup-not-found').length) {
+        $('#datatable-member-lookup-not-found').DataTable($.extend({}, tableDefaults, {
+            buttons: buildExportButtons(':visible')
+        }));
     }
 
     <?php if (!empty($lookup_results) || !empty($not_found)): ?>
