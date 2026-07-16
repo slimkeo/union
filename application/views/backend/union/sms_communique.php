@@ -14,8 +14,9 @@
         <div class="row" style="margin-bottom:20px;">
             <div class="col-md-12">
                 <label><b>Message to Send (Do not close or touch the system until sending is done)</b></label>
+                <label><b>Message: VM 058-****</b></label>
                 <textarea id="bulkMessage" class="form-control" rows="6"
-                          placeholder="Type your message here..."
+                          placeholder="Continue your message here..."
                           style="font-size:15px;"></textarea>
             </div>
         </div>
