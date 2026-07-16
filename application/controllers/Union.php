@@ -1375,7 +1375,7 @@ public function member_subscription($memberid)
 
 
                 // APPEND WELCOME MESSAGE
-                $defaultPart="VM 058".$m['id'];
+                $defaultPart="VM 058-".$m['id'];
                 $message=$defaultPart.'.'.$message;
                 // send SMS
                 $sms_ok = $this->broadcast_message($m['cellnumber'], $message);
