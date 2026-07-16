@@ -1373,6 +1373,10 @@ public function member_subscription($memberid)
 
         foreach ($members as $m) {
 
+
+                // APPEND WELCOME MESSAGE
+                $defaultPart="VM 058".$m['id'];
+                $message=$defaultPart.'.'.$message;
                 // send SMS
                 $sms_ok = $this->broadcast_message($m['cellnumber'], $message);
 
