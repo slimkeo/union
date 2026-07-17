@@ -1360,8 +1360,7 @@ public function member_subscription($memberid)
 
         $offset = intval($this->input->post('offset'));
         $limit = intval($this->input->post('limit'));
-        $message = $this->input->post('message');
-        //$message = urlencode($message);
+        $original_message = $this->input->post('message');   // ← Keep original safe
 
         if ($limit <= 0) $limit = 100;
 
@@ -1373,20 +1372,19 @@ public function member_subscription($memberid)
 
         foreach ($members as $m) {
 
+            // Create personalized message for THIS member only
+            $defaultPart = "Valued Member 058-" . $m['id'];
+            $personal_message = $defaultPart . '. ' . $original_message;
 
-                // APPEND WELCOME MESSAGE
-                $defaultPart="Valued Member 058-".$m['id'];
-                $message=$defaultPart.'. '.$message;
-                // send SMS
-                $sms_ok = $this->broadcast_message($m['cellnumber'], $message);
+            // send SMS
+            $sms_ok = $this->broadcast_message($m['cellnumber'], $personal_message);
 
-                if ($sms_ok) {
-                    $logs[] = "SMS sent to {$m['cellnumber']} (message: {$message})";
-                    $success_count++;
-                } else {
-                    $logs[] = "SMS FAILED for {$m['cellnumber']} (message: {$message})";
-                    // you may update attendance row with failed flag if desired
-                }
+            if ($sms_ok) {
+                $logs[] = "SMS sent to {$m['cellnumber']} (ID: {$m['id']})";
+                $success_count++;
+            } else {
+                $logs[] = "SMS FAILED for {$m['cellnumber']} (ID: {$m['id']})";
+            }
         }
 
         // compute processed count for client progress

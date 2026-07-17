@@ -10,19 +10,27 @@ class Member_model extends CI_Model {
 
     public function count_all_members()
     {
-        return (int)$this->db->count_all('members'); 
-
+        //return (int)$this->db->count_all('members'); 
 
         //testing
-       // $this->db->where('id', 9169);
-       // return (int)$this->db->count_all_results('members');
+        $this->db->where('id', 1);
+        $this->db->where('id', 2);
+        $this->db->where('id', 3);
+        $this->db->where('id', 4);
+        $this->db->where('id', 9169);
+       $this->db->where('id', 9169);
+       return (int)$this->db->count_all_results('members');
     }
 
     public function get_members_batch($offset = 0, $limit = 200)
     {
         $this->db->select('id, idnumber, employeeno, tscno, surname, name, cellnumber, dob, gender, schoolcode');
         $this->db->from('members');
-        //$this->db->where('id', 9169);
+        $this->db->where('id', 1);
+        $this->db->where('id', 2);
+        $this->db->where('id', 3);
+        $this->db->where('id', 4);
+        $this->db->where('id', 9169);
         $this->db->limit($limit, $offset);
         $query = $this->db->get();
         return $query->result_array();
