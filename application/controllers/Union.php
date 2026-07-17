@@ -1360,7 +1360,7 @@ public function member_subscription($memberid)
 
         $offset = intval($this->input->post('offset'));
         $limit = intval($this->input->post('limit'));
-        $original_message = $this->input->post('message');
+        $message = $this->input->post('message');
         //$message = urlencode($message);
 
         if ($limit <= 0) $limit = 100;
@@ -1376,15 +1376,15 @@ public function member_subscription($memberid)
 
                 // APPEND WELCOME MESSAGE
                 $defaultPart="Valued Member 058-".$m['id'];
-                $personalized_message=$defaultPart.'. '.$original_message;
+                $message=$defaultPart.'. '.$message;
                 // send SMS
-                $sms_ok = $this->broadcast_message($m['cellnumber'], $personalized_message);
+                $sms_ok = $this->broadcast_message($m['cellnumber'], $message);
 
                 if ($sms_ok) {
-                    $logs[] = "SMS sent to {$m['cellnumber']} (message: {$personalized_message})";
+                    $logs[] = "SMS sent to {$m['cellnumber']} (message: {$message})";
                     $success_count++;
                 } else {
-                    $logs[] = "SMS FAILED for {$m['cellnumber']} (message: {$personalized_message})";
+                    $logs[] = "SMS FAILED for {$m['cellnumber']} (message: {$message})";
                     // you may update attendance row with failed flag if desired
                 }
         }
