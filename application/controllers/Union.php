@@ -1376,15 +1376,15 @@ public function member_subscription($memberid)
 
                 // APPEND WELCOME MESSAGE
                 $defaultPart="Valued Member 058-".$m['id'];
-                $message=$defaultPart.'. '.$message;
+                $personalised_message=$defaultPart.'. '.$message;
                 // send SMS
-                $sms_ok = $this->broadcast_message($m['cellnumber'], $message);
+                $sms_ok = $this->broadcast_message($m['cellnumber'], $personalised_message);
 
                 if ($sms_ok) {
-                    $logs[] = "SMS sent to {$m['cellnumber']} (message: {$message})";
+                    $logs[] = "SMS sent to {$m['cellnumber']} (message: {$personalised_message})";
                     $success_count++;
                 } else {
-                    $logs[] = "SMS FAILED for {$m['cellnumber']} (message: {$message})";
+                    $logs[] = "SMS FAILED for {$m['cellnumber']} (message: {$personalised_message})";
                     // you may update attendance row with failed flag if desired
                 }
         }

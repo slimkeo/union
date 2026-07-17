@@ -13,7 +13,7 @@ class Member_model extends CI_Model {
         //return (int)$this->db->count_all('members'); 
 
         //testing
-        $this->db->where_in('id', [1, 2, 3, 4]);
+        $this->db->where_in('id', [1, 2, 3, 4,9169]);
        return (int)$this->db->count_all_results('members');
     }
 
