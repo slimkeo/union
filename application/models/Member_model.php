@@ -13,12 +13,7 @@ class Member_model extends CI_Model {
         //return (int)$this->db->count_all('members'); 
 
         //testing
-        $this->db->where('id', 1);
-        $this->db->where('id', 2);
-        $this->db->where('id', 3);
-        $this->db->where('id', 4);
-        $this->db->where('id', 9169);
-       $this->db->where('id', 9169);
+        $this->db->where_in('id', [1, 2, 3, 4]);
        return (int)$this->db->count_all_results('members');
     }
 
@@ -26,11 +21,7 @@ class Member_model extends CI_Model {
     {
         $this->db->select('id, idnumber, employeeno, tscno, surname, name, cellnumber, dob, gender, schoolcode');
         $this->db->from('members');
-        $this->db->where('id', 1);
-        $this->db->where('id', 2);
-        $this->db->where('id', 3);
-        $this->db->where('id', 4);
-        $this->db->where('id', 9169);
+        $this->db->where_in('id', [1, 2, 3, 4,9169]);
         $this->db->limit($limit, $offset);
         $query = $this->db->get();
         return $query->result_array();
