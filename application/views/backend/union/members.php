@@ -265,12 +265,40 @@ $(document).ready(function() {
 
         // ADD THIS ↓↓↓
         dom: 'Bfrtip',
-        buttons: [
-            { extend: 'copy',  text: 'Copy' },
-            { extend: 'excel', text: 'Excel' },
-            { extend: 'pdf',   text: 'PDF' },
-            { extend: 'print', text: 'Print' }
-        ]
+		buttons: [
+                { extend: 'copy', text: 'Copy' },
+                { extend: 'excel', text: 'Excel' },
+                { extend: 'pdf', text: 'PDF' },
+                {
+                    extend: 'print',
+                    text: 'Print',
+                    action: function (e, dt, button, config) {
+                        var oldLength = dt.page.len();
+                        var oldPage = dt.page();
+
+                        // For server-side tables, only current page is loaded.
+                        // Temporarily load all rows, print, then restore paging.
+                        dt.one('draw', function () {
+                            if (jQuery.fn.dataTable.ext.buttons.print && jQuery.fn.dataTable.ext.buttons.print.action) {
+                                jQuery.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                            } else {
+                                window.print();
+                            }
+
+                            // Restore after print dialog is opened
+                            setTimeout(function () {
+                                dt.page.len(oldLength);
+                                dt.one('draw', function () {
+                                    dt.page(oldPage).draw('page');
+                                });
+                                dt.draw(false);
+                            }, 500);
+                        });
+
+                        dt.page.len(-1).draw();
+                    }
+                }
+            ]
     });
 
     // Switch to "Add Member" tab when button is clicked
