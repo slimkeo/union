@@ -255,51 +255,121 @@ function extractDOBFromID() {
 
 $(document).ready(function() {
 
-    $('#datatable-tabletools1').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-            "url": "<?php echo base_url('index.php?union/get_members');?>",
-            "type": "POST"
-        },
+    var table = $('#datatable-tabletools1').DataTable({
 
-        // ADD THIS ↓↓↓
-        dom: 'Bfrtip',
-		buttons: [
-                { extend: 'copy', text: 'Copy' },
-                { extend: 'excel', text: 'Excel' },
-                { extend: 'pdf', text: 'PDF' },
-                {
-                    extend: 'print',
-                    text: 'Print',
-                    action: function (e, dt, button, config) {
-                        var oldLength = dt.page.len();
-                        var oldPage = dt.page();
+processing: true,
+serverSide: true,
 
-                        // For server-side tables, only current page is loaded.
-                        // Temporarily load all rows, print, then restore paging.
-                        dt.one('draw', function () {
-                            if (jQuery.fn.dataTable.ext.buttons.print && jQuery.fn.dataTable.ext.buttons.print.action) {
-                                jQuery.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
-                            } else {
-                                window.print();
-                            }
+ajax: {
+	url: "<?php echo base_url('index.php?union/get_members');?>",
+	type: "POST"
+},
 
-                            // Restore after print dialog is opened
-                            setTimeout(function () {
-                                dt.page.len(oldLength);
-                                dt.one('draw', function () {
-                                    dt.page(oldPage).draw('page');
-                                });
-                                dt.draw(false);
-                            }, 500);
-                        });
+dom: 'Bfrtip',
 
-                        dt.page.len(-1).draw();
-                    }
-                }
-            ]
-    });
+buttons: [
+
+	{
+		extend: 'copy',
+		text: 'Copy'
+	},
+
+	{
+		extend: 'excelHtml5',
+		text: 'Excel',
+
+		action: function (e, dt, button, config) {
+
+			var self = this;
+
+			dt.one('preXhr', function (e, s, data) {
+				data.start = 0;
+				data.length = -1; // request ALL rows
+			});
+
+			dt.one('draw', function (e, settings) {
+
+				$.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
+
+				dt.one('preXhr', function (e, s, data) {
+					data.start = settings._iDisplayStart;
+					data.length = settings._iDisplayLength;
+				});
+
+				setTimeout(function () {
+					dt.ajax.reload(null, false);
+				}, 100);
+			});
+
+			dt.ajax.reload();
+		}
+	},
+
+	{
+		extend: 'pdfHtml5',
+		text: 'PDF',
+
+		action: function (e, dt, button, config) {
+
+			var self = this;
+
+			dt.one('preXhr', function (e, s, data) {
+				data.start = 0;
+				data.length = -1;
+			});
+
+			dt.one('draw', function (e, settings) {
+
+				$.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config);
+
+				dt.one('preXhr', function (e, s, data) {
+					data.start = settings._iDisplayStart;
+					data.length = settings._iDisplayLength;
+				});
+
+				setTimeout(function () {
+					dt.ajax.reload(null, false);
+				}, 100);
+			});
+
+			dt.ajax.reload();
+		}
+	},
+
+	{
+		extend: 'print',
+		text: 'Print',
+
+		action: function (e, dt, button, config) {
+
+			var self = this;
+
+			dt.one('preXhr', function (e, s, data) {
+				data.start = 0;
+				data.length = -1;
+			});
+
+			dt.one('draw', function (e, settings) {
+
+				$.fn.dataTable.ext.buttons.print.action.call(self, e, dt, button, config);
+
+				dt.one('preXhr', function (e, s, data) {
+					data.start = settings._iDisplayStart;
+					data.length = settings._iDisplayLength;
+				});
+
+				setTimeout(function () {
+					dt.ajax.reload(null, false);
+				}, 100);
+			});
+
+			dt.ajax.reload();
+		}
+	}
+
+]
+
+});
 
     // Switch to "Add Member" tab when button is clicked
     $('#add_member_btn').on('click', function () {

@@ -894,6 +894,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $length = intval($this->input->post("length"));
         $search = $this->input->post("search")['value'];
 
+        
         // --------------------------------------------
         // 1️⃣ Total records (no search)
         // --------------------------------------------
@@ -922,7 +923,11 @@ function members($param1 = '', $param2 = '', $param3 = '')
         // --------------------------------------------
         // 4️⃣ Pagination
         // --------------------------------------------
-        $this->db->limit($length, $start);
+        // 4️⃣ Pagination
+        // --------------------------------------------
+        if ((int)$length > 0) {
+            $this->db->limit($length, $start);
+        }
 
         // --------------------------------------------
         // 5️⃣ Fetch results
