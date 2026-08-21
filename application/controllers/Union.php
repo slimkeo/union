@@ -3183,17 +3183,13 @@ public function member_subscription($memberid)
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url() . 'index.php?login', 'refresh');
 
-        // APPROVE PENDING MEMBER APPLICATION
+        // APPROVE: transfer pending_members -> members
         if ($param1 === 'approve' && !empty($param2)) {
             $pending_id = intval($param2);
-
-            // Start transaction
             $this->db->trans_begin();
 
-            // 1. Get pending member (must be still pending)
             $pending = $this->db
                 ->where('id', $pending_id)
-                ->where('application_status', 'pending')
                 ->get('pending_members')
                 ->row_array();
 
@@ -3203,82 +3199,241 @@ public function member_subscription($memberid)
                 redirect(base_url() . 'index.php?union/pending_members', 'refresh');
             }
 
-            // 2. Insert into members
-            // Map gender from full word to single-letter code expected in members table
-            $gender = null;
-            if (strcasecmp($pending['gender'], 'Male') === 0) {
-                $gender = 'M';
-            } elseif (strcasecmp($pending['gender'], 'Female') === 0) {
-                $gender = 'F';
-            } else {
-                $gender = null;
+            // Block duplicates already in members
+            $this->db->group_start();
+            if (!empty($pending['idnumber'])) {
+                $this->db->where('idnumber', $pending['idnumber']);
+            }
+            if (!empty($pending['cellnumber'])) {
+                $this->db->or_where('cellnumber', $pending['cellnumber']);
+            }
+            if (!empty($pending['employeeno'])) {
+                $this->db->or_where('employeeno', $pending['employeeno']);
+            }
+            $this->db->group_end();
+            if ($this->db->get('members')->num_rows() > 0) {
+                $this->db->trans_rollback();
+                $this->session->set_flashdata('flash_message_error', 'Member already exists with the same ID Number, Phone or Employee No.');
+                redirect(base_url() . 'index.php?union/joining_files/' . $pending_id, 'refresh');
             }
 
-            $member_data = [
-                'idnumber'      => $pending['idnumber'],
-                'employeeno'    => $pending['employeeno'],
-                'tscno'         => $pending['tscno'],
-                'surname'       => $pending['surname'],
-                'name'          => $pending['name'],
-                'cellnumber'    => $pending['cellnumber'],
-                'dob'           => $pending['dob'],
-                'gender'        => $gender,
-                'schoolcode'    => $pending['schoolcode'],
-                'createdate'    => date('Y-m-d H:i:s'),
-                'timestamp'     => date('Y-m-d H:i:s'),
-                'user'          => $this->session->userdata('user_id'),
-                'password'      => '',          // no login from members table here
-                'last_login'    => null,
-                'login_attempts'=> 0,
-                'is_alive'      => 1,
+            $gender = $pending['gender'] ?? null;
+            if (strcasecmp((string)$gender, 'Male') === 0) {
+                $gender = 'M';
+            } elseif (strcasecmp((string)$gender, 'Female') === 0) {
+                $gender = 'F';
+            }
+
+            $copy_fields = [
+                'idnumber', 'employeeno', 'tscno', 'surname', 'name', 'cellnumber',
+                'dob', 'schoolcode', 'institution', 'employment_status', 'branch',
+                'grade', 'post', 'qualification', 'password', 'last_login',
+                'login_attempts', 'is_active', 'url'
             ];
+
+            $member_data = [
+                'gender'     => $gender,
+                'createdate' => !empty($pending['createdate']) ? $pending['createdate'] : date('Y-m-d H:i:s'),
+                'timestamp'  => date('Y-m-d H:i:s'),
+                'user'       => $this->session->userdata('user_id'),
+            ];
+
+            foreach ($copy_fields as $field) {
+                if (array_key_exists($field, $pending) && $this->db->field_exists($field, 'members')) {
+                    $member_data[$field] = $pending[$field];
+                }
+            }
+
+            if ($this->db->field_exists('is_active', 'members') && !isset($member_data['is_active'])) {
+                $member_data['is_active'] = 1;
+            }
 
             $this->db->insert('members', $member_data);
             $member_id = $this->db->insert_id();
 
-            // 3. Copy documents from application_documents -> member_documents
-            $docs = $this->db
-                ->where('pending_member_id', $pending_id)
-                ->get('application_documents')
-                ->result_array();
-
-            foreach ($docs as $doc) {
-                $member_doc = [
-                    'member_id'     => $member_id,
-                    'document_type' => $doc['document_type'],
-                    'file_name'     => $doc['file_name'],
-                    'file_path'     => $doc['file_path'],
-                    'mime_type'     => $doc['mime_type'],
-                    'file_size'     => $doc['file_size'],
-                    'uploaded_at'   => $doc['uploaded_at'],
-                ];
-                $this->db->insert('member_documents', $member_doc);
+            // Keep joining files, point them at the new member id
+            if ($this->db->table_exists('joining_files')) {
+                $this->db->where('memberid', $pending_id)
+                         ->update('joining_files', ['memberid' => $member_id]);
             }
 
-            // 4. Mark application as approved
-            $this->db->where('id', $pending_id)
-                     ->update('pending_members', [
-                         'application_status' => 'approved',
-                         'reviewed_at'        => date('Y-m-d H:i:s'),
-                         'reviewed_by'        => $this->session->userdata('user_id'),
-                     ]);
+            $this->db->where('id', $pending_id)->delete('pending_members');
 
-            // Commit or rollback
             if ($this->db->trans_status() === FALSE) {
                 $this->db->trans_rollback();
                 $this->session->set_flashdata('flash_message_error', 'Error approving member application. No changes were saved.');
+                redirect(base_url() . 'index.php?union/pending_members', 'refresh');
+            }
+
+            $this->db->trans_commit();
+            $this->session->set_flashdata('flash_message', 'Member approved and transferred to Members.');
+            redirect(base_url() . 'index.php?union/member_details/' . $member_id, 'refresh');
+        }
+
+        // REJECT: remove pending application + joining files
+        if ($param1 === 'reject' && !empty($param2)) {
+            $pending_id = intval($param2);
+            $this->db->trans_begin();
+
+            $pending = $this->db
+                ->where('id', $pending_id)
+                ->get('pending_members')
+                ->row_array();
+
+            if (!$pending) {
+                $this->db->trans_rollback();
+                $this->session->set_flashdata('flash_message_error', 'Pending application not found or already processed.');
+                redirect(base_url() . 'index.php?union/pending_members', 'refresh');
+            }
+
+            if ($this->db->table_exists('joining_files')) {
+                $files = $this->db->where('memberid', $pending_id)->get('joining_files')->result_array();
+                foreach ($files as $file) {
+                    $this->_delete_joining_file_disk($file);
+                }
+                $this->db->where('memberid', $pending_id)->delete('joining_files');
+            }
+
+            $this->db->where('id', $pending_id)->delete('pending_members');
+
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+                $this->session->set_flashdata('flash_message_error', 'Error rejecting application. No changes were saved.');
             } else {
                 $this->db->trans_commit();
-                $this->session->set_flashdata('flash_message', 'Member application approved and created in Members.');
+                $this->session->set_flashdata('flash_message', 'Pending member application rejected and removed.');
             }
 
             redirect(base_url() . 'index.php?union/pending_members', 'refresh');
         }
 
-        // Default: load pending members view, DataTables will fetch data via AJAX
         $page_data['page_name']  = 'pending_members';
         $page_data['page_title'] = 'Pending Member Applications';
         $this->load->view('backend/index', $page_data);
+    }
+
+    /**
+     * Review pending member details + joining files, then approve/reject
+     */
+    function joining_files($param1 = '')
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url() . 'index.php?login', 'refresh');
+
+        $pending_id = intval($param1);
+        $pending = $this->db->get_where('pending_members', ['id' => $pending_id])->row_array();
+
+        if (!$pending) {
+            $this->session->set_flashdata('flash_message_error', 'Pending member not found.');
+            redirect(base_url() . 'index.php?union/pending_members', 'refresh');
+        }
+
+        $files = [];
+        if ($this->db->table_exists('joining_files')) {
+            $files = $this->db
+                ->where('memberid', $pending_id)
+                ->order_by('id', 'ASC')
+                ->get('joining_files')
+                ->result_array();
+        }
+
+        $page_data['pending']    = $pending;
+        $page_data['files']      = $files;
+        $page_data['page_name']  = 'joining_files';
+        $page_data['page_title'] = 'Review Joining Files';
+        $this->load->view('backend/index', $page_data);
+    }
+
+    /**
+     * Stream / open a joining file (ID, payslip, POP)
+     */
+    function view_joining_file($param1 = '')
+    {
+        if ($this->session->userdata('user_login') != 1)
+            redirect(base_url() . 'index.php?login', 'refresh');
+
+        $file_id = intval($param1);
+        $file = $this->db->get_where('joining_files', ['id' => $file_id])->row_array();
+
+        if (!$file) {
+            show_error('File not found', 404);
+            return;
+        }
+
+        // Remote URL stored on the file row
+        foreach (['path', 'file_path', 'url'] as $col) {
+            if (!empty($file[$col]) && preg_match('#^https?://#i', $file[$col])) {
+                redirect($file[$col], 'location', 302);
+                return;
+            }
+        }
+
+        $path = $this->_resolve_joining_file_path($file);
+        if (!$path || !is_file($path)) {
+            show_error('File missing on disk', 404);
+            return;
+        }
+
+        $mime = function_exists('mime_content_type') ? mime_content_type($path) : 'application/octet-stream';
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . filesize($path));
+        header('Content-Disposition: inline; filename="' . basename($path) . '"');
+        readfile($path);
+        exit;
+    }
+
+    /**
+     * Resolve joining file path from row (supports path/file_path/url columns or uploads/joining_files/{id}.*)
+     */
+    private function _resolve_joining_file_path($file)
+    {
+        foreach (['path', 'file_path', 'url', 'file_name'] as $col) {
+            if (!empty($file[$col])) {
+                $candidate = $file[$col];
+                if (preg_match('#^https?://#i', $candidate)) {
+                    return null; // remote URL handled by caller if needed
+                }
+                if (is_file($candidate)) {
+                    return $candidate;
+                }
+                if (is_file(FCPATH . ltrim($candidate, '/\\'))) {
+                    return FCPATH . ltrim($candidate, '/\\');
+                }
+                if (is_file(FCPATH . 'uploads/joining_files/' . basename($candidate))) {
+                    return FCPATH . 'uploads/joining_files/' . basename($candidate);
+                }
+            }
+        }
+
+        $base = FCPATH . 'uploads/joining_files/';
+        $id = (int)($file['id'] ?? 0);
+        $type = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($file['file_type'] ?? ''));
+        $memberid = (int)($file['memberid'] ?? 0);
+
+        $patterns = [
+            $base . $id . '.*',
+            $base . $memberid . '_' . $type . '.*',
+            $base . $type . '_' . $id . '.*',
+            $base . $memberid . '/' . $type . '.*',
+            $base . $memberid . '/' . $id . '.*',
+        ];
+
+        foreach ($patterns as $pattern) {
+            $matches = glob($pattern);
+            if (!empty($matches) && is_file($matches[0])) {
+                return $matches[0];
+            }
+        }
+
+        return null;
+    }
+
+    private function _delete_joining_file_disk($file)
+    {
+        $path = $this->_resolve_joining_file_path($file);
+        if ($path && is_file($path)) {
+            @unlink($path);
+        }
     }
 
     /**
@@ -3294,16 +3449,13 @@ public function member_subscription($memberid)
         $draw   = intval($this->input->post('draw'));
         $start  = intval($this->input->post('start'));
         $length = intval($this->input->post('length'));
-        $search = $this->input->post('search')['value'] ?? '';
+        $search_post = $this->input->post('search');
+        $search = is_array($search_post) ? ($search_post['value'] ?? '') : '';
 
-        // Base query: only pending applications
         $this->db->from('pending_members');
-        $this->db->where('application_status', 'pending');
         $recordsTotal = $this->db->count_all_results();
 
-        // Filtered query
         $this->db->from('pending_members');
-        $this->db->where('application_status', 'pending');
 
         if (!empty($search)) {
             $this->db->group_start()
@@ -3317,9 +3469,9 @@ public function member_subscription($memberid)
 
         $recordsFiltered = $this->db->count_all_results('', FALSE);
 
-        // Ordering
-        $order_column_index = $this->input->post('order')[0]['column'] ?? 0;
-        $order_direction    = $this->input->post('order')[0]['dir'] ?? 'asc';
+        $order = $this->input->post('order');
+        $order_column_index = is_array($order) ? ($order[0]['column'] ?? 0) : 0;
+        $order_direction    = is_array($order) ? ($order[0]['dir'] ?? 'desc') : 'desc';
 
         $columns = [
             0 => 'id',
@@ -3327,9 +3479,9 @@ public function member_subscription($memberid)
             2 => 'employeeno',
             3 => 'surname',
             4 => 'name',
-            6 => 'cellnumber',
-            7 => 'gender',
-            8 => 'schoolcode',
+            5 => 'cellnumber',
+            6 => 'gender',
+            7 => 'schoolcode',
         ];
 
         $order_column = $columns[$order_column_index] ?? 'id';
@@ -3346,31 +3498,40 @@ public function member_subscription($memberid)
         $i = $start + 1;
 
         foreach ($pending_members as $row) {
-            // Option buttons: approve + view docs (simple count)
-            $doc_count = $this->db
-                ->where('pending_member_id', $row['id'])
-                ->count_all_results('application_documents');
+            $doc_count = 0;
+            if ($this->db->table_exists('joining_files')) {
+                $doc_count = $this->db
+                    ->where('memberid', $row['id'])
+                    ->count_all_results('joining_files');
+            }
 
-            $options = '<a href="' . base_url('index.php?union/pending_members/approve/' . $row['id']) . '" ' .
+            $options = '<a href="' . base_url('index.php?union/joining_files/' . $row['id']) . '" ' .
+                       'class="btn btn-xs btn-info" data-toggle="tooltip" title="View joining files">' .
+                       '<i class="fa fa-eye"></i></a> ';
+
+            $options .= '<a href="' . base_url('index.php?union/pending_members/approve/' . $row['id']) . '" ' .
                        'class="btn btn-xs btn-success" ' .
                        'onclick="return confirm(\'Approve this member application?\');">' .
-                       '<i class="fa fa-check"></i> Approve</a>';
+                       '<i class="fa fa-check"></i></a> ';
+
+            $options .= '<a href="' . base_url('index.php?union/pending_members/reject/' . $row['id']) . '" ' .
+                       'class="btn btn-xs btn-danger" ' .
+                       'onclick="return confirm(\'Reject this member application?\');">' .
+                       '<i class="fa fa-times"></i></a>';
 
             if ($doc_count > 0) {
                 $options .= ' <span class="label label-info">' . $doc_count . ' docs</span>';
-            } else {
-                $options .= ' <span class="label label-default">No docs</span>';
             }
 
             $data[] = [
                 $i++,
-                htmlspecialchars($row['idnumber']),
-                htmlspecialchars($row['employeeno']),
-                htmlspecialchars($row['surname']),
-                htmlspecialchars($row['name']),
-                htmlspecialchars($row['cellnumber']),
-                htmlspecialchars($row['gender']),
-                htmlspecialchars($row['schoolcode']),
+                htmlspecialchars((string)($row['idnumber'] ?? '')),
+                htmlspecialchars((string)($row['employeeno'] ?? '')),
+                htmlspecialchars((string)($row['surname'] ?? '')),
+                htmlspecialchars((string)($row['name'] ?? '')),
+                htmlspecialchars((string)($row['cellnumber'] ?? '')),
+                htmlspecialchars((string)($row['gender'] ?? '')),
+                htmlspecialchars((string)($row['schoolcode'] ?? '')),
                 $options,
             ];
         }

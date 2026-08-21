@@ -5,8 +5,8 @@
 		<div class="tabs">
 		<ul class="nav nav-tabs">
 			<li class="active">
-				<a href="#list" data-toggle="tab"><i class="fa fa-list"></i> 
-					<?php echo get_phrase('all_members');?>
+				<a href="#list" data-toggle="tab"><i class="fa fa-list"></i>
+					<?php echo get_phrase('pending_members');?>
 				</a>
 			</li>
 		</ul>
@@ -26,7 +26,6 @@
 					<th>Emp NO:</th>
                     <th>Surname</th>
                     <th>Name</th>
-                    <th>Passbook No</th>
                     <th>Cell Number</th>
                     <th>Gender</th>
                     <th>School Code</th>
@@ -47,55 +46,122 @@
    </div>
 </div>
 <script>
-// Extract DOB from Swazi ID number
-// Format: YYMMDD (first 6 digits)
-// Example: 9702206100465 -> 1997-02-20
-function extractDOBFromID() {
-    const idInput = document.getElementById('idnumber_input');
-    const dobInput = document.getElementById('dob_input');
-    const idValue = idInput.value.trim();
-    
-    // Must be at least 6 digits
-    if (idValue.length >= 6) {
-        const dateStr = idValue.substring(0, 6);
-        const yy = parseInt(dateStr.substring(0, 2));
-        const mm = dateStr.substring(2, 4);
-        const dd = dateStr.substring(4, 6);
-        
-        // Determine full year: if YY <= current year's last 2 digits, it's 20YY, else 19YY
-        const currentYear = new Date().getFullYear();
-        const currentYY = currentYear % 100;
-        const fullYear = yy <= currentYY ? 2000 + yy : 1900 + yy;
-        
-        // Format as YYYY-MM-DD
-        const dobValue = fullYear + '-' + mm + '-' + dd;
-        dobInput.value = dobValue;
-    }
-}
-
 $(document).ready(function() {
 
     $('#datatable-tabletools1').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-            "url": "<?php echo base_url('index.php?union/get_pending_members');?>",
-            "type": "POST"
-        },
 
-        // ADD THIS ↓↓↓
-        dom: 'Bfrtip',
-        buttons: [
-            { extend: 'copy',  text: 'Copy' },
-            { extend: 'excel', text: 'Excel' },
-            { extend: 'pdf',   text: 'PDF' },
-            { extend: 'print', text: 'Print' }
-        ]
-    });
+		processing: true,
+		serverSide: true,
 
-    // Switch to "Add Member" tab when button is clicked
-    $('#add_member_btn').on('click', function () {
-        $('.nav-tabs a[href="#add"]').tab('show');
+		ajax: {
+			url: "<?php echo base_url('index.php?union/get_pending_members');?>",
+			type: "POST"
+		},
+
+		dom: 'Bfrtip',
+
+		buttons: [
+
+			{
+				extend: 'copy',
+				text: 'Copy'
+			},
+
+			{
+				extend: 'excelHtml5',
+				text: 'Excel',
+
+				action: function (e, dt, button, config) {
+
+					var self = this;
+
+					dt.one('preXhr', function (e, s, data) {
+						data.start = 0;
+						data.length = -1;
+					});
+
+					dt.one('draw', function (e, settings) {
+
+						$.fn.dataTable.ext.buttons.excelHtml5.action.call(self, e, dt, button, config);
+
+						dt.one('preXhr', function (e, s, data) {
+							data.start = settings._iDisplayStart;
+							data.length = settings._iDisplayLength;
+						});
+
+						setTimeout(function () {
+							dt.ajax.reload(null, false);
+						}, 100);
+					});
+
+					dt.ajax.reload();
+				}
+			},
+
+			{
+				extend: 'pdfHtml5',
+				text: 'PDF',
+
+				action: function (e, dt, button, config) {
+
+					var self = this;
+
+					dt.one('preXhr', function (e, s, data) {
+						data.start = 0;
+						data.length = -1;
+					});
+
+					dt.one('draw', function (e, settings) {
+
+						$.fn.dataTable.ext.buttons.pdfHtml5.action.call(self, e, dt, button, config);
+
+						dt.one('preXhr', function (e, s, data) {
+							data.start = settings._iDisplayStart;
+							data.length = settings._iDisplayLength;
+						});
+
+						setTimeout(function () {
+							dt.ajax.reload(null, false);
+						}, 100);
+					});
+
+					dt.ajax.reload();
+				}
+			},
+
+			{
+				extend: 'print',
+				text: 'Print',
+
+				action: function (e, dt, button, config) {
+
+					var self = this;
+
+					dt.one('preXhr', function (e, s, data) {
+						data.start = 0;
+						data.length = -1;
+					});
+
+					dt.one('draw', function (e, settings) {
+
+						$.fn.dataTable.ext.buttons.print.action.call(self, e, dt, button, config);
+
+						dt.one('preXhr', function (e, s, data) {
+							data.start = settings._iDisplayStart;
+							data.length = settings._iDisplayLength;
+						});
+
+						setTimeout(function () {
+							dt.ajax.reload(null, false);
+						}, 100);
+					});
+
+					dt.ajax.reload();
+				}
+			}
+
+		]
+
     });
 
 });

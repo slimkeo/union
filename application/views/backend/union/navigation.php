@@ -25,6 +25,8 @@
 			<!-- Manage  Members and Branches  -->			
 			<li class="nav-parent <?php
 				if ($page_name == 'members' ||
+						$page_name == 'pending_members' ||
+						$page_name == 'joining_files' ||
 						$page_name == 'member_lookup' ||
 						$page_name == 'upload_members_spreadsheet' || $page_name == 'branches' || $page_name == 'report_per_branch')
 					echo 'nav-expanded nav-active';
@@ -38,6 +40,12 @@
 						<a href="<?php echo base_url(); ?>index.php?union/members">
 							 <i class="fa fa-address-book"></i>
 							<span>All Members</span>
+						</a>
+					</li>
+					<li class="<?php if ($page_name == 'pending_members' || $page_name == 'joining_files') echo 'nav-active'; ?> ">
+						<a href="<?php echo base_url(); ?>index.php?union/pending_members">
+							 <i class="fa fa-address-book"></i>
+							<span>Pending Members</span>
 						</a>
 					</li>
 					<li class="<?php if ($page_name == 'branches' || $page_name == 'report_per_branch') echo 'nav-active'; ?> ">
