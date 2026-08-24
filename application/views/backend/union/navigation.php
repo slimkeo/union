@@ -44,7 +44,7 @@
 					</li>
 					<li class="<?php if ($page_name == 'pending_members' || $page_name == 'joining_files') echo 'nav-active'; ?> ">
 						<a href="<?php echo base_url(); ?>index.php?union/pending_members">
-							 <i class="fa fa-address-book"></i>
+							 <i class="fa fa-bell"></i>
 							<span>Pending Members</span>
 						</a>
 					</li>
