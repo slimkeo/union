@@ -3266,7 +3266,7 @@ public function member_subscription($memberid)
             }
 
             $this->db->trans_commit();
-            send_sms_otp($cellnumber, 'Your membership application has been approved. SNAT UNION NUMBER IS '.$member_id.'.');
+            $this->send_sms_otp($pending['cellnumber'], 'Your membership application has been approved. SNAT UNION NUMBER IS 058-'.$member_id.'.');
             
             $this->session->set_flashdata('flash_message', 'Member approved and transferred to Members.');
             redirect(base_url() . 'index.php?union/member_details/' . $member_id, 'refresh');
