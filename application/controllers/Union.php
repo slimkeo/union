@@ -981,7 +981,7 @@ function members($param1 = '', $param2 = '', $param3 = '')
         data-toggle="tooltip"
         data-placement="top"
         title="Delete Member"
-        onclick="confirm_modal(\''.base_url('index.php?union/member/delete/'.$r->id).'\')">
+        onclick="confirm_modal(\''.base_url('index.php?union/members/delete/'.$r->id).'\')">
             <i class="fa fa-trash"></i>
         </a>
         '
