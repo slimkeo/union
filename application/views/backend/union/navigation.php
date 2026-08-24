@@ -207,25 +207,6 @@
 				</ul>
 			</li>			
 
-			<!-- manage sms -->
-			<li class="nav-parent <?php
-				if ($page_name == 'communication' ||
-						$page_name == 'sms_batch_invite' || $page_name == 'sms_communique')
-					echo 'nav-expanded nav-active';
-				?> ">
-					<a href="#">
-						<i class="fa fa-bullhorn"></i>
-						<span>SMS Communication</span>
-					</a>
-				<ul class="nav nav-children">
-					<li class="<?php if ($page_name == 'sms_communique' ) echo 'nav-active'; ?> ">
-						<a href="<?php echo base_url(); ?>index.php?union/sms_communique">
-							 <i class="fa fa-address-book-o"></i>
-							<span>SMS Communique</span>
-						</a>
-					</li>									
-				</ul>
-			</li>
 			<!-- Manage  Payments -->
 			<li class="nav-parent <?php
 				if ($page_name == 'reports' ||
