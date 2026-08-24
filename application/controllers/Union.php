@@ -894,9 +894,14 @@ function members($param1 = '', $param2 = '', $param3 = '')
         $length = intval($this->input->post("length"));
         $search = $this->input->post("search")['value'];
 
-        
+        $filter_branch             = $this->input->post('filter_branch');
+        $filter_employment_status  = $this->input->post('filter_employment_status');
+        $filter_grade              = $this->input->post('filter_grade');
+        $filter_post               = $this->input->post('filter_post');
+        $filter_age_category       = $this->input->post('filter_age_category');
+
         // --------------------------------------------
-        // 1️⃣ Total records (no search)
+        // 1️⃣ Total records (no search / filters)
         // --------------------------------------------
         $recordsTotal = $this->db->count_all("members");
 
@@ -904,6 +909,13 @@ function members($param1 = '', $param2 = '', $param3 = '')
         // 2️⃣ Build filtered query
         // --------------------------------------------
         $this->db->from("members");
+        $this->_apply_members_filters(
+            $filter_branch,
+            $filter_employment_status,
+            $filter_grade,
+            $filter_post,
+            $filter_age_category
+        );
 
         if (!empty($search)) {
             $this->db->group_start();
@@ -921,8 +933,6 @@ function members($param1 = '', $param2 = '', $param3 = '')
         // --------------------------------------------
         $recordsFiltered = $this->db->count_all_results('', false);
 
-        // --------------------------------------------
-        // 4️⃣ Pagination
         // --------------------------------------------
         // 4️⃣ Pagination
         // --------------------------------------------
@@ -996,6 +1006,43 @@ function members($param1 = '', $param2 = '', $param3 = '')
                 "recordsFiltered" => $recordsFiltered,
                 "data" => $data
             ]));
+    }
+
+    /**
+     * Apply member list filters (branch, employment status, grade, post, age category).
+     * Age is derived from the first 6 digits of idnumber (YYMMDD), e.g. 970220... => 1997-02-20.
+     * Pensioners are 60+, non-pensioners are under 60.
+     */
+    private function _apply_members_filters($branch, $employment_status, $grade, $post, $age_category)
+    {
+        if ($branch !== null && $branch !== '') {
+            $this->db->where('branch', (int) $branch);
+        }
+
+        if ($employment_status !== null && $employment_status !== '') {
+            $this->db->where('employment_status', (int) $employment_status);
+        }
+
+        if ($grade !== null && $grade !== '') {
+            $this->db->where('grade', (int) $grade);
+        }
+
+        if ($post !== null && $post !== '') {
+            $this->db->where('post', (int) $post);
+        }
+
+        if ($age_category === 'pensioner' || $age_category === 'non_pensioner') {
+            // Century rule matches extractDOBFromID(): YY <= current YY => 20YY, else 19YY
+            $age_expr = "TIMESTAMPDIFF(YEAR, STR_TO_DATE(CONCAT(IF(CAST(LEFT(idnumber, 2) AS UNSIGNED) <= (YEAR(CURDATE()) % 100), 2000 + CAST(LEFT(idnumber, 2) AS UNSIGNED), 1900 + CAST(LEFT(idnumber, 2) AS UNSIGNED)), SUBSTRING(idnumber, 3, 4)), '%Y%m%d'), CURDATE())";
+
+            $this->db->where('CHAR_LENGTH(idnumber) >= 6', NULL, FALSE);
+
+            if ($age_category === 'pensioner') {
+                $this->db->where($age_expr . ' >= 60', NULL, FALSE);
+            } else {
+                $this->db->where($age_expr . ' < 60', NULL, FALSE);
+            }
+        }
     }
 
 public function get_members_by_branch()

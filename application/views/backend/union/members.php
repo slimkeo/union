@@ -2,6 +2,8 @@
 
 	$branches=$this->db->get('branches')->result_array();
 	$employment_status=$this->db->get('employment_status')->result_array();
+	$grades = $this->db->table_exists('grade') ? $this->db->get('grade')->result_array() : [];
+	$posts = $this->db->table_exists('post') ? $this->db->get('post')->result_array() : [];
 
 ?>
 <div class="row">
@@ -34,6 +36,84 @@
                         <button type="button" class="btn btn-primary" id="add_member_btn">
                             <i class="fa fa-plus"></i> Add Member
                         </button>
+                    </div>
+                </div>
+
+                <div class="panel panel-default" style="margin-bottom: 15px;">
+                    <div class="panel-heading">
+                        <h4 class="panel-title" style="margin: 0;">Filter Members</h4>
+                    </div>
+                    <div class="panel-body">
+                        <form id="members_filter_form" class="form-horizontal">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Branch</label>
+                                        <select id="filter_branch" name="filter_branch" class="form-control">
+                                            <option value="">All Branches</option>
+                                            <?php foreach ($branches as $rowz): ?>
+                                            <option value="<?php echo $rowz['id']; ?>"><?php echo htmlspecialchars($rowz['name']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Employment Status</label>
+                                        <select id="filter_employment_status" name="filter_employment_status" class="form-control">
+                                            <option value="">All Statuses</option>
+                                            <?php foreach ($employment_status as $rowz): ?>
+                                            <option value="<?php echo $rowz['id']; ?>"><?php echo htmlspecialchars($rowz['description']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Grade</label>
+                                        <select id="filter_grade" name="filter_grade" class="form-control">
+                                            <option value="">All Grades</option>
+                                            <?php foreach ($grades as $rowz): ?>
+                                            <option value="<?php echo $rowz['id']; ?>"><?php echo htmlspecialchars($rowz['description']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Post</label>
+                                        <select id="filter_post" name="filter_post" class="form-control">
+                                            <option value="">All Posts</option>
+                                            <?php foreach ($posts as $rowz): ?>
+                                            <option value="<?php echo $rowz['id']; ?>"><?php echo htmlspecialchars($rowz['description']); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="control-label">Age Category</label>
+                                        <select id="filter_age_category" name="filter_age_category" class="form-control">
+                                            <option value="">All Ages</option>
+                                            <option value="pensioner">Pensioners (60+)</option>
+                                            <option value="non_pensioner">Non-Pensioners (under 60)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" style="margin-top: 25px;">
+                                        <button type="button" class="btn btn-primary" id="apply_members_filter">
+                                            <i class="fa fa-filter"></i> Apply Filter
+                                        </button>
+                                        <button type="button" class="btn btn-default" id="reset_members_filter">
+                                            <i class="fa fa-refresh"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
@@ -262,7 +342,14 @@ serverSide: true,
 
 ajax: {
 	url: "<?php echo base_url('index.php?union/get_members');?>",
-	type: "POST"
+	type: "POST",
+	data: function (d) {
+		d.filter_branch = $('#filter_branch').val();
+		d.filter_employment_status = $('#filter_employment_status').val();
+		d.filter_grade = $('#filter_grade').val();
+		d.filter_post = $('#filter_post').val();
+		d.filter_age_category = $('#filter_age_category').val();
+	}
 },
 
 dom: 'Bfrtip',
@@ -271,12 +358,14 @@ buttons: [
 
 	{
 		extend: 'copy',
-		text: 'Copy'
+		text: 'Copy',
+		exportOptions: { columns: ':not(:last-child)' }
 	},
 
 	{
 		extend: 'excelHtml5',
 		text: 'Excel',
+		exportOptions: { columns: ':not(:last-child)' },
 
 		action: function (e, dt, button, config) {
 
@@ -284,7 +373,7 @@ buttons: [
 
 			dt.one('preXhr', function (e, s, data) {
 				data.start = 0;
-				data.length = -1; // request ALL rows
+				data.length = -1; // request ALL filtered rows
 			});
 
 			dt.one('draw', function (e, settings) {
@@ -308,6 +397,7 @@ buttons: [
 	{
 		extend: 'pdfHtml5',
 		text: 'PDF',
+		exportOptions: { columns: ':not(:last-child)' },
 
 		action: function (e, dt, button, config) {
 
@@ -339,6 +429,7 @@ buttons: [
 	{
 		extend: 'print',
 		text: 'Print',
+		exportOptions: { columns: ':not(:last-child)' },
 
 		action: function (e, dt, button, config) {
 
@@ -370,6 +461,20 @@ buttons: [
 ]
 
 });
+
+    $('#members_filter_form').on('submit', function (e) {
+        e.preventDefault();
+        table.ajax.reload();
+    });
+
+    $('#apply_members_filter').on('click', function () {
+        table.ajax.reload();
+    });
+
+    $('#reset_members_filter').on('click', function () {
+        $('#members_filter_form')[0].reset();
+        table.ajax.reload();
+    });
 
     // Switch to "Add Member" tab when button is clicked
     $('#add_member_btn').on('click', function () {
