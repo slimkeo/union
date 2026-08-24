@@ -77,7 +77,7 @@ $file_type_labels = [
                                 <tr><th>Institution</th><td><?php echo !empty($pending['institution']) ? htmlspecialchars($pending['institution']) : 'N/A'; ?></td></tr>
                                 <tr><th>Branch</th><td><?php echo !empty($branch_name) ? htmlspecialchars($branch_name) : 'N/A'; ?></td></tr>
                                 <tr><th>Employment Status</th><td><?php echo !empty($status_name) ? htmlspecialchars($status_name) : 'N/A'; ?></td></tr>
-                                <tr><th>Grade</th><td><?php echo !empty($grade_name) ? htmlspecialchars($grade_name) : 'N/A'; ?></td></tr>
+                                <tr><th>Grade</th><td><?php echo !empty($grade_name) ? htmlspecialchars($grade_name).'('.$pending['salary'].')' : 'N/A'; ?></td></tr>
                                 <tr><th>Post</th><td><?php echo !empty($post_name) ? htmlspecialchars($post_name) : 'N/A'; ?></td></tr>
                                 <tr><th>Qualification</th><td><?php echo !empty($pending['qualification']) ? htmlspecialchars($pending['qualification']) : 'N/A'; ?></td></tr>
                             </tbody>
