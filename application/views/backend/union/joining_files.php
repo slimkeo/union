@@ -98,7 +98,7 @@ $file_type_labels = [
                             <?php
                                 $type_key = (string)($file['file_type'] ?? '');
                                 $label = $file_type_labels[$type_key] ?? strtoupper($type_key);
-                                $file_url = 'https://membership.snatunion.com/uploads/joining/'.$pending['id'].'/'.($file['file_path'] ?? '');
+                                $file_url = 'https://membership.snatunion.com/'.($file['file_path'] ?? '');
                             ?>
                             <li class="list-group-item">
                                 <strong><?php echo htmlspecialchars($label); ?></strong>
