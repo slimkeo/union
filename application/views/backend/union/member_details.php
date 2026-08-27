@@ -135,7 +135,7 @@ $subscriptions = $this->db
         </section>
         <section class="panel">
             <header class="panel-heading">
-                <h2 class="panel-title"><i class="fa fa-paperclip"></i> Joining Files (ID, Payslip, POP)</h2>
+                <h2 class="panel-title"><i class="fa fa-paperclip"></i> Files (ID, Payslip, POP)</h2>
             </header>
             <div class="panel-body">
                 <?php if (!empty($files)): ?>
