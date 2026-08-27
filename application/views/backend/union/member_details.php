@@ -133,5 +133,36 @@ $subscriptions = $this->db
                 <?php endif; ?>
             </div>
         </section>
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title"><i class="fa fa-paperclip"></i> Joining Files (ID, Payslip, POP)</h2>
+            </header>
+            <div class="panel-body">
+                <?php if (!empty($files)): ?>
+                    <ul class="list-group">
+                        <?php foreach ($files as $file): ?>
+                            <?php
+                                $type_key = (string)($file['file_type'] ?? '');
+                                $label = $file_type_labels[$type_key] ?? strtoupper($type_key);
+                                $file_url = 'https://membership.snatunion.com/'.($file['file_path'] ?? '');
+                            ?>
+                            <li class="list-group-item">
+                                <strong><?php echo htmlspecialchars($label); ?></strong>
+                                <span class="text-muted">(#<?php echo (int)($file['id'] ?? 0); ?>)</span>
+                                <div class="pull-right">
+                                    <a href="<?php echo $file_url; ?>" class="btn btn-xs btn-info" target="_blank">
+                                        <i class="fa fa-eye"></i> View
+                                    </a>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="alert alert-warning" style="margin-bottom: 0;">
+                        No joining files found for this applicant.
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
     </div>
 </div>

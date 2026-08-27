@@ -355,7 +355,18 @@ function members($param1 = '', $param2 = '', $param3 = '')
         if ($this->session->userdata('user_login') != 1)
             redirect(base_url(), 'refresh');
 
+            $files = [];
+            if ($this->db->table_exists('joining_files')) {
+                $files = $this->db
+                    ->where('memberid', $memberid)
+                    ->order_by('id', 'ASC')
+                    ->get('joining_files')
+                    ->result_array();
+            }
+
+
         $page_data['memberid']   = $memberid;
+        $page_data['files']   = $files;
         $page_data['page_name']  = 'member_details';
         $page_data['page_title'] = 'Member Details';
         $this->load->view('backend/index', $page_data);
