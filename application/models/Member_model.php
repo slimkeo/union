@@ -19,7 +19,7 @@ class Member_model extends CI_Model {
 
     public function get_members_batch($offset = 0, $limit = 200)
     {
-        $this->db->select('id, idnumber, employeeno, tscno, surname, name, cellnumber, dob, gender, schoolcode','coupon');
+        $this->db->select('id, idnumber, employeeno, tscno, surname, name, cellnumber, dob, gender, schoolcode,coupon');
         $this->db->from('members');
         $this->db->where_in('id', range(1, 5)); // testing
         $this->db->limit($limit, $offset);
