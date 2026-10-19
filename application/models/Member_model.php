@@ -13,7 +13,7 @@ class Member_model extends CI_Model {
         return (int)$this->db->count_all('members'); 
 
         //testing
-        $this->db->where_in('id', range(1, 5));
+        $this->db->where_in('id', range(1, 20));
        return (int)$this->db->count_all_results('members');
     }
 
@@ -21,7 +21,7 @@ class Member_model extends CI_Model {
     {
         $this->db->select('id, idnumber, employeeno, tscno, surname, name, cellnumber, dob, gender, schoolcode,coupon');
         $this->db->from('members');
-        $this->db->where_in('id', range(1, 5)); // testing
+        $this->db->where_in('id', range(1, 20)); // testing
         $this->db->limit($limit, $offset);
         $query = $this->db->get();
         return $query->result_array();

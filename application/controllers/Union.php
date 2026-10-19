@@ -1439,7 +1439,7 @@ public function member_subscription($memberid)
 
 
                 // APPEND WELCOME MESSAGE
-                $defaultPart="VM 058-".$m['id']." Get E70 off 1 ticket for Teachers Day Bash 2026 Edition! Use coupon ".$m['coupon']." at: https://m.mojaticket.com/event/19314/tickets Valid until 24 Oct 2026, 06:00.";
+                $defaultPart="VM 058-".$m['id']." Get E70 off 1 ticket for Teachers Day Bash 2026 Edition! Use coupon ".$m['coupon']." at: https://m.mojaticket.com/event/19314/tickets Valid until 24 Oct 2026, 06:00";
                 $personalised_message=$defaultPart.'. '.$message;
                 // send SMS
                 $sms_ok = $this->broadcast_message($m['cellnumber'], $personalised_message);
@@ -1475,7 +1475,7 @@ public function member_subscription($memberid)
         $api_key = "c25hdGZpbmFuY2VAb3V0bG9vay5jb20tcmVhbHNtcw=="; // Replace with your real API key
 
         // 5️⃣ Construct API URL
-        $phone="26876404197";
+        //$phone="26876404197";
         $url = "https://www.realsms.co.sz/urlSend?_apiKey={$api_key}&dest={$phone}&message=" . urlencode($message);
 
         // 6️⃣ Send SMS using file_get_contents
