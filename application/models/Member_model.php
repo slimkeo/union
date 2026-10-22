@@ -10,7 +10,7 @@ class Member_model extends CI_Model {
 
     public function count_all_members()
     {
-        return (int)$this->db->count_all('temp_members'); 
+        return (int)$this->db->count_all('s_members'); 
 
         //testing
       // $this->db->where_in('id', range(1, 20));
@@ -21,7 +21,7 @@ class Member_model extends CI_Model {
     public function get_members_batch($offset = 0, $limit = 200)
     {
         $this->db->select('id, idnumber, employeeno, tscno, surname, name, cellnumber, dob, gender, schoolcode,coupon');
-        $this->db->from('temp_members');
+        $this->db->from('s_members');
         //$this->db->where_in('id', range(1, 20)); // testing
         //$this->db->where('cellnumber', '26876404197');
         $this->db->limit($limit, $offset);
